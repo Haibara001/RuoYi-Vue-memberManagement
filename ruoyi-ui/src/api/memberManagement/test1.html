@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>足球会员管理系统 - 关注标签</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2ecc71;
+            --primary-dark: #27ae60;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+            --grass: #1abc9c;
+            --border-radius: 10px;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+            color: var(--light);
+            font-family: 'Open Sans', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="%2327ae60" opacity="0.3"/></svg>');
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: rgba(44, 62, 80, 0.8);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-icon::before {
+            content: "";
+            position: absolute;
+            width: 70%;
+            height: 70%;
+            border: 3px solid white;
+            border-radius: 50%;
+        }
+        
+        .logo-text h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .logo-text p {
+            color: var(--gray);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            position: relative;
+        }
+        
+        .user-avatar::after {
+            content: "";
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 15px;
+            height: 15px;
+            background: var(--accent);
+            border-radius: 50%;
+            border: 2px solid var(--dark);
+        }
+        
+        .user-details h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .user-details p {
+            color: var(--gray);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .sidebar {
+            flex: 0 0 260px;
+            background: rgba(44, 62, 80, 0.8);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px 0;
+            height: fit-content;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-item {
+            padding: 16px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            font-size: 16px;
+            color: var(--light);
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(46, 204, 113, 0.15);
+            border-left: 4px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .nav-item.active .nav-icon {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+        
+        .nav-icon {
+            font-size: 20px;
+            transition: var(--transition);
+            width: 24px;
+            text-align: center;
+        }
+        
+        .nav-text {
+            font-weight: 500;
+        }
+        
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .card {
+            background: rgba(44, 62, 80, 0.8);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card-title i {
+            font-size: 26px;
+        }
+        
+        .tag-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .tag-card {
+            background: rgba(52, 73, 94, 0.6);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+        
+        .tag-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+        
+        .tag-card.selected {
+            border-color: var(--primary);
+            background: rgba(46, 204, 113, 0.1);
+        }
+        
+        .tag-card.selected::after {
+            content: "\f00c";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 24px;
+            height: 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .tag-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--grass));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: white;
+            font-size: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tag-icon::before {
+            content: "";
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+        
+        .tag-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--light);
+        }
+        
+        .tag-desc {
+            font-size: 14px;
+            color: var(--gray);
+            line-height: 1.5;
+            min-height: 40px;
+        }
+        
+        .tag-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        .tag-search {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .tag-search input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            transition: var(--transition);
+            background: rgba(52, 73, 94, 0.5);
+            color: var(--light);
+        }
+        
+        .tag-search input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+        }
+        
+        .tag-search input::placeholder {
+            color: var(--gray);
+        }
+        
+        .tag-search button {
+            padding: 14px 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tag-search button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn {
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gray);
+            color: var(--gray);
+        }
+        
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .selected-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(46, 204, 113, 0.1);
+            border-radius: var(--border-radius);
+            min-height: 80px;
+        }
+        
+        .selected-tag {
+            background: var(--primary);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .selected-tag i {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .selected-tag i:hover {
+            transform: scale(1.2);
+        }
+        
+        .empty-tags {
+            color: var(--gray);
+            font-style: italic;
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(52, 73, 94, 0.6);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        .stat-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        .stat-info p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .pitch-bg {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pitch-bg::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect width="100" height="100" fill="%231a2a3a"/><rect x="0" y="45" width="100" height="10" fill="%2327ae60" opacity="0.1"/><rect x="45" y="0" width="10" height="100" fill="%2327ae60" opacity="0.1"/><circle cx="50" cy="50" r="10" fill="none" stroke="%2327ae60" stroke-width="1" opacity="0.1"/></svg>');
+            opacity: 0.2;
+            z-index: -1;
+        }
+        
+        @media (max-width: 992px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                flex: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .user-info {
+                justify-content: center;
+            }
+            
+            .tag-container {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            }
+            
+            .tag-search {
+                flex-direction: column;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transform: translateX(150%);
+            transition: transform 0.5s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .football-icon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.05;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-futbol"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>足球会员管理系统</h1>
+                    <p>专业足球俱乐部会员管理解决方案</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">管</div>
+                <div class="user-details">
+                    <h3>管理员</h3>
+                    <p><i class="fas fa-shield-alt"></i> 系统管理员</p>
+                </div>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="nav-item">
+                    <i class="fas fa-home nav-icon"></i>
+                    <span class="nav-text">系统首页</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span class="nav-text">会员管理</span>
+                </div>
+                <div class="nav-item active">
+                    <i class="fas fa-tags nav-icon"></i>
+                    <span class="nav-text">标签管理</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    <span class="nav-text">数据分析</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    <span class="nav-text">赛事管理</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-trophy nav-icon"></i>
+                    <span class="nav-text">成就系统</span>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-cog nav-icon"></i>
+                    <span class="nav-text">系统设置</span>
+                </div>
+            </div>
+            
+            <div class="content">
+                <div class="card pitch-bg">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-tags"></i>
+                            <span>会员标签管理</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tag-search">
+                        <input type="text" id="tagSearch" placeholder="搜索足球相关标签...">
+                        <button id="searchBtn">
+                            <i class="fas fa-search"></i> 搜索标签
+                        </button>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalTags">28</h3>
+                                <p>可用标签</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="selectedCount">0</h3>
+                                <p>已选标签</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>1,258</h3>
+                                <p>注册会员</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-futbol"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>24</h3>
+                                <p>活跃球队</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="selected-tags">
+                        <div class="empty-tags">请从下方选择会员关注的标签</div>
+                    </div>
+                    
+                    <h3 style="margin: 25px 0 15px; color: var(--primary);">所有标签</h3>
+                    <div class="tag-container" id="tagContainer">
+                        <!-- 标签将通过JS动态生成 -->
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-outline">
+                            <i class="fas fa-times"></i> 取消
+                        </button>
+                        <button class="btn btn-primary" id="saveTags">
+                            <i class="fas fa-save"></i> 保存标签选择
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card pitch-bg">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>推荐标签</span>
+                        </div>
+                        <div style="color: var(--gray);">
+                            <i class="fas fa-sync-alt"></i> 每日更新
+                        </div>
+                    </div>
+                    
+                    <div class="tag-container">
+                        <div class="tag-card selected">
+                            <div class="tag-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="tag-name">赛季会员</div>
+                            <div class="tag-desc">购买整个赛季的会员资格</div>
+                            <div class="tag-stats">
+                                <div class="stat">
+                                    <div class="stat-value">642</div>
+                                    <div class="stat-label">会员</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-icon">
+                                <i class="fas fa-ticket-alt"></i>
+                            </div>
+                            <div class="tag-name">主场支持者</div>
+                            <div class="tag-desc">经常参加主场赛事的会员</div>
+                            <div class="tag-stats">
+                                <div class="stat">
+                                    <div class="stat-value">824</div>
+                                    <div class="stat-label">会员</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tag-card">
+                            <div class="tag-icon">
+                                <i class="fas fa-child"></i>
+                            </div>
+                            <div class="tag-name">青训关注</div>
+                            <div class="tag-desc">关注青年队发展的会员</div>
+                            <div class="tag-stats">
+                                <div class="stat">
+                                    <div class="stat-value">378</div>
+                                    <div class="stat-label">会员</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i> 标签选择已成功保存！
+    </div>
+
+    <script>
+        // 足球主题标签数据
+        const tags = [
+            { id: 1, name: "赛季会员", icon: "trophy", desc: "购买整个赛季的会员资格", selected: false, members: 642 },
+            { id: 2, name: "主场支持者", icon: "ticket-alt", desc: "经常参加主场赛事的会员", selected: false, members: 824 },
+            { id: 3, name: "客场追随者", icon: "bus", desc: "经常跟随球队参加客场比赛", selected: false, members: 312 },
+            { id: 4, name: "青训关注", icon: "child", desc: "关注青年队发展的会员", selected: false, members: 378 },
+            { id: 5, name: "俱乐部历史", icon: "history", desc: "对俱乐部历史感兴趣的会员", selected: true, members: 458 },
+            { id: 6, name: "商品收藏", icon: "tshirt", desc: "经常购买俱乐部周边商品", selected: true, members: 567 },
+            { id: 7, name: "线上活动", icon: "laptop", desc: "经常参与线上互动活动", selected: false, members: 723 },
+            { id: 8, name: "慈善项目", icon: "hand-holding-heart", desc: "参与俱乐部慈善项目的会员", selected: false, members: 289 },
+            { id: 9, name: "球员见面会", icon: "handshake", desc: "经常参加球员见面活动", selected: false, members: 431 },
+            { id: 10, name: "票务优先", icon: "ticket-alt", desc: "享有票务购买优先权的会员", selected: false, members: 856 },
+            { id: 11, name: "贵宾会员", icon: "crown", desc: "享有贵宾待遇的高级会员", selected: false, members: 124 },
+            { id: 12, name: "国际会员", icon: "globe", desc: "居住在海外的俱乐部会员", selected: false, members: 187 }
+        ];
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            const tagContainer = document.getElementById('tagContainer');
+            const selectedTagsContainer = document.querySelector('.selected-tags');
+            const selectedCount = document.getElementById('selectedCount');
+            const totalTags = document.getElementById('totalTags');
+            const notification = document.getElementById('notification');
+            
+            // 显示总标签数
+            totalTags.textContent = tags.length;
+            
+            // 生成标签卡片
+            tags.forEach(tag => {
+                const tagCard = document.createElement('div');
+                tagCard.className = `tag-card ${tag.selected ? 'selected' : ''}`;
+                tagCard.dataset.id = tag.id;
+                
+                tagCard.innerHTML = `
+                    <div class="tag-icon">
+                        <i class="fas fa-${tag.icon}"></i>
+                    </div>
+                    <div class="tag-name">${tag.name}</div>
+                    <div class="tag-desc">${tag.desc}</div>
+                    <div class="tag-stats">
+                        <div class="stat">
+                            <div class="stat-value">${tag.members}</div>
+                            <div class="stat-label">会员</div>
+                        </div>
+                    </div>
+                `;
+                
+                tagCard.addEventListener('click', () => toggleTagSelection(tag, tagCard));
+                tagContainer.appendChild(tagCard);
+                
+                // 初始化已选标签
+                if(tag.selected) {
+                    addSelectedTag(tag);
+                }
+            });
+            
+            // 更新已选标签计数
+            updateSelectedCount();
+            
+            // 搜索功能
+            document.getElementById('searchBtn').addEventListener('click', searchTags);
+            document.getElementById('tagSearch').addEventListener('input', searchTags);
+            
+            // 保存按钮
+            document.getElementById('saveTags').addEventListener('click', saveTags);
+            
+            // 导航项点击事件
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // 创建随机足球图标
+            createFootballIcons();
+        });
+        
+        // 创建随机足球图标
+        function createFootballIcons() {
+            const container = document.querySelector('.container');
+            for (let i = 0; i < 8; i++) {
+                const icon = document.createElement('div');
+                icon.className = 'football-icon';
+                icon.style.top = `${Math.random() * 100}%`;
+                icon.style.left = `${Math.random() * 100}%`;
+                icon.style.width = `${30 + Math.random() * 60}px`;
+                icon.style.height = icon.style.width;
+                container.appendChild(icon);
+            }
+        }
+        
+        // 切换标签选择状态
+        function toggleTagSelection(tag, element) {
+            tag.selected = !tag.selected;
+            element.classList.toggle('selected');
+            
+            if(tag.selected) {
+                addSelectedTag(tag);
+            } else {
+                removeSelectedTag(tag.id);
+            }
+            
+            updateSelectedCount();
+        }
+        
+        // 添加已选标签
+        function addSelectedTag(tag) {
+            const selectedTagsContainer = document.querySelector('.selected-tags');
+            
+            // 如果当前显示的是空状态信息，移除它
+            if(selectedTagsContainer.querySelector('.empty-tags')) {
+                selectedTagsContainer.innerHTML = '';
+            }
+            
+            // 检查是否已经存在该标签
+            if(!document.querySelector(`.selected-tag[data-id="${tag.id}"]`)) {
+                const selectedTag = document.createElement('div');
+                selectedTag.className = 'selected-tag';
+                selectedTag.dataset.id = tag.id;
+                selectedTag.innerHTML = `
+                    <span>${tag.name}</span>
+                    <i class="fas fa-times"></i>
+                `;
+                
+                // 添加删除事件
+                selectedTag.querySelector('i').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    removeSelectedTag(tag.id);
+                    
+                    // 同时取消主卡片的选择状态
+                    const mainCard = document.querySelector(`.tag-card[data-id="${tag.id}"]`);
+                    if(mainCard) {
+                        mainCard.classList.remove('selected');
+                        tag.selected = false;
+                        updateSelectedCount();
+                    }
+                });
+                
+                selectedTagsContainer.appendChild(selectedTag);
+            }
+        }
+        
+        // 移除已选标签
+        function removeSelectedTag(tagId) {
+            const selectedTag = document.querySelector(`.selected-tag[data-id="${tagId}"]`);
+            if(selectedTag) {
+                selectedTag.remove();
+                
+                // 如果没有已选标签了，显示空状态信息
+                const selectedTagsContainer = document.querySelector('.selected-tags');
+                if(selectedTagsContainer.children.length === 0) {
+                    selectedTagsContainer.innerHTML = '<div class="empty-tags">请从下方选择会员关注的标签</div>';
+                }
+            }
+        }
+        
+        // 更新已选标签计数
+        function updateSelectedCount() {
+            const selectedCount = document.querySelectorAll('.tag-card.selected').length;
+            document.getElementById('selectedCount').textContent = selectedCount;
+        }
+        
+        // 搜索标签
+        function searchTags() {
+            const searchTerm = document.getElementById('tagSearch').value.toLowerCase();
+            const tagCards = document.querySelectorAll('.tag-card');
+            
+            tagCards.forEach(card => {
+                const tagName = card.querySelector('.tag-name').textContent.toLowerCase();
+                const tagDesc = card.querySelector('.tag-desc').textContent.toLowerCase();
+                
+                if(tagName.includes(searchTerm) || tagDesc.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // 保存标签选择
+        function saveTags() {
+            const selectedTags = [];
+            document.querySelectorAll('.tag-card.selected').forEach(card => {
+                selectedTags.push(parseInt(card.dataset.id));
+            });
+            
+            // 显示通知
+            showNotification();
+            
+            // 这里应该是实际的API调用
+            console.log('保存的标签ID:', selectedTags);
+        }
+        
+        // 显示通知
+        function showNotification() {
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

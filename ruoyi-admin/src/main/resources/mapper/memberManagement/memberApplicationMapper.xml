@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.memberManagement.mapper.memberApplicationMapper">
+    
+    <resultMap type="memberApplication" id="memberApplicationResult">
+        <result property="appId"    column="app_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="name"    column="name"    />
+        <result property="contact"    column="contact"    />
+        <result property="reason"    column="reason"    />
+        <result property="status"    column="status"    />
+        <result property="reviewerId"    column="reviewer_id"    />
+        <result property="reviewTime"    column="review_time"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectmemberApplicationVo">
+        select app_id, user_id, name, contact, reason, status, reviewer_id, review_time, create_time, update_by, update_time from association_application
+    </sql>
+
+    <select id="selectmemberApplicationList" parameterType="memberApplication" resultMap="memberApplicationResult">
+        <include refid="selectmemberApplicationVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="contact != null  and contact != ''"> and contact = #{contact}</if>
+            <if test="reason != null  and reason != ''"> and reason = #{reason}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="reviewerId != null "> and reviewer_id = #{reviewerId}</if>
+            <if test="reviewTime != null "> and review_time = #{reviewTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectmemberApplicationByAppId" parameterType="Long" resultMap="memberApplicationResult">
+        <include refid="selectmemberApplicationVo"/>
+        where app_id = #{appId}
+    </select>
+
+    <insert id="insertmemberApplication" parameterType="memberApplication" useGeneratedKeys="true" keyProperty="appId">
+        insert into association_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="contact != null and contact != ''">contact,</if>
+            <if test="reason != null and reason != ''">reason,</if>
+            <if test="status != null">status,</if>
+            <if test="reviewerId != null">reviewer_id,</if>
+            <if test="reviewTime != null">review_time,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="contact != null and contact != ''">#{contact},</if>
+            <if test="reason != null and reason != ''">#{reason},</if>
+            <if test="status != null">#{status},</if>
+            <if test="reviewerId != null">#{reviewerId},</if>
+            <if test="reviewTime != null">#{reviewTime},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatememberApplication" parameterType="memberApplication">
+        update association_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="contact != null and contact != ''">contact = #{contact},</if>
+            <if test="reason != null and reason != ''">reason = #{reason},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="reviewerId != null">reviewer_id = #{reviewerId},</if>
+            <if test="reviewTime != null">review_time = #{reviewTime},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where app_id = #{appId}
+    </update>
+
+    <delete id="deletememberApplicationByAppId" parameterType="Long">
+        delete from association_application where app_id = #{appId}
+    </delete>
+
+    <delete id="deletememberApplicationByAppIds" parameterType="String">
+        delete from association_application where app_id in 
+        <foreach item="appId" collection="array" open="(" separator="," close=")">
+            #{appId}
+        </foreach>
+    </delete>
+</mapper>

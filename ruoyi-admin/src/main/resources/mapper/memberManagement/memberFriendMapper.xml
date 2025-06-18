@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.memberManagement.mapper.memberFriendMapper">
+    
+    <resultMap type="memberFriend" id="memberFriendResult">
+        <result property="userA"    column="user_a"    />
+        <result property="userB"    column="user_b"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectmemberFriendVo">
+        select user_a, user_b, create_time from association_friend
+    </sql>
+
+    <select id="selectmemberFriendList" parameterType="memberFriend" resultMap="memberFriendResult">
+        <include refid="selectmemberFriendVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectmemberFriendByUserA" parameterType="Long" resultMap="memberFriendResult">
+        <include refid="selectmemberFriendVo"/>
+        where user_a = #{userA}
+    </select>
+
+    <insert id="insertmemberFriend" parameterType="memberFriend">
+        insert into association_friend
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userA != null">user_a,</if>
+            <if test="userB != null">user_b,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userA != null">#{userA},</if>
+            <if test="userB != null">#{userB},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatememberFriend" parameterType="memberFriend">
+        update association_friend
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userB != null">user_b = #{userB},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where user_a = #{userA}
+    </update>
+
+    <delete id="deletememberFriendByUserA" parameterType="Long">
+        delete from association_friend where user_a = #{userA}
+    </delete>
+
+    <delete id="deletememberFriendByUserAs" parameterType="String">
+        delete from association_friend where user_a in 
+        <foreach item="userA" collection="array" open="(" separator="," close=")">
+            #{userA}
+        </foreach>
+    </delete>
+</mapper>

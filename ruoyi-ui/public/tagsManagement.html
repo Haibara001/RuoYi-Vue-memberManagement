@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>足球会员关注标签选择</title>
+  <link rel="stylesheet" href="styles/tagsManagement/index.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+<div id="app">
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="fas fa-tags"></i>
+          <span>关注标签管理</span>
+        </div>
+        <div style="color: var(--gray);">
+          <i class="fas fa-futbol"></i> 足球会员系统
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-tags"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="totalTags">36</h3>
+            <p>可用标签</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="stat-info">
+            <h3 id="selectedCount">5</h3>
+            <p>已选标签</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-info">
+            <h3>1,258</h3>
+            <p>注册会员</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-futbol"></i>
+          </div>
+          <div class="stat-info">
+            <h3>24</h3>
+            <p>活跃球队</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tag-search">
+        <el-input
+          v-model="queryParams.name"
+          placeholder="搜索足球相关标签..."
+          clearable
+          @clear="handleQuery"
+          @keyup.enter.native="handleQuery"
+          style="width: 250px; margin-right: 8px;"
+        ></el-input>
+        <el-button type="primary" @click="handleQuery">
+          <i class="fas fa-search"></i> 搜索标签
+        </el-button>
+      </div>
+
+      <el-table
+        v-loading="loading"
+        :data="memberTagList"
+        style="width: 100%; margin-top: 20px;"
+      >
+        <el-table-column prop="tagId" label="ID" width="80"></el-table-column>
+        <el-table-column prop="name" label="标签名称"></el-table-column>
+        <!-- 根据你的字段继续定义列 -->
+      </el-table>
+
+      <div class="selected-tags">
+        <div class="selected-tag">
+          <span>英超联赛</span>
+          <i class="fas fa-times"></i>
+        </div>
+        <div class="selected-tag">
+          <span>巴塞罗那</span>
+          <i class="fas fa-times"></i>
+        </div>
+        <div class="selected-tag">
+          <span>梅西</span>
+          <i class="fas fa-times"></i>
+        </div>
+        <div class="selected-tag">
+          <span>技术训练</span>
+          <i class="fas fa-times"></i>
+        </div>
+        <div class="selected-tag">
+          <span>赛季会员</span>
+          <i class="fas fa-times"></i>
+        </div>
+      </div>
+
+      <div class="tag-category">
+        <div class="category-title">
+          <i class="fas fa-globe-europe"></i>
+          <span>联赛与赛事</span>
+        </div>
+        <div class="tag-container">
+          <div class="tag-card selected">
+            <div class="tag-icon">
+              <i class="fas fa-futbol"></i>
+            </div>
+            <div class="tag-name">英超联赛</div>
+            <div class="tag-desc">英格兰足球超级联赛</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">824</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-futbol"></i>
+            </div>
+            <div class="tag-name">西甲联赛</div>
+            <div class="tag-desc">西班牙足球甲级联赛</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">756</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card selected">
+            <div class="tag-icon">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <div class="tag-name">欧冠联赛</div>
+            <div class="tag-desc">欧洲冠军联赛</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">932</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-futbol"></i>
+            </div>
+            <div class="tag-name">中超联赛</div>
+            <div class="tag-desc">中国足球超级联赛</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">642</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tag-category">
+        <div class="category-title">
+          <i class="fas fa-users"></i>
+          <span>球队与球员</span>
+        </div>
+        <div class="tag-container">
+          <div class="tag-card selected">
+            <div class="tag-icon">
+              <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="tag-name">巴塞罗那</div>
+            <div class="tag-desc">FC Barcelona</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">587</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-crown"></i>
+            </div>
+            <div class="tag-name">皇家马德里</div>
+            <div class="tag-desc">Real Madrid CF</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">523</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-city"></i>
+            </div>
+            <div class="tag-name">曼城</div>
+            <div class="tag-desc">Manchester City FC</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">478</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card selected">
+            <div class="tag-icon">
+              <i class="fas fa-user-alt"></i>
+            </div>
+            <div class="tag-name">梅西</div>
+            <div class="tag-desc">Lionel Messi</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">865</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tag-category">
+        <div class="category-title">
+          <i class="fas fa-chess-board"></i>
+          <span>足球技术与分析</span>
+        </div>
+        <div class="tag-container">
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-chess-board"></i>
+            </div>
+            <div class="tag-name">战术分析</div>
+            <div class="tag-desc">足球战术与阵型研究</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">432</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card selected">
+            <div class="tag-icon">
+              <i class="fas fa-dumbbell"></i>
+            </div>
+            <div class="tag-name">技术训练</div>
+            <div class="tag-desc">足球技术训练方法</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">376</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-whistle"></i>
+            </div>
+            <div class="tag-name">裁判规则</div>
+            <div class="tag-desc">足球规则与裁判解读</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">287</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-first-aid"></i>
+            </div>
+            <div class="tag-name">伤病预防</div>
+            <div class="tag-desc">运动员伤病预防与康复</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">321</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tag-category">
+        <div class="category-title">
+          <i class="fas fa-trophy"></i>
+          <span>会员专属</span>
+        </div>
+        <div class="tag-container">
+          <div class="tag-card selected">
+            <div class="tag-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="tag-name">赛季会员</div>
+            <div class="tag-desc">购买整个赛季的会员</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">542</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-ticket-alt"></i>
+            </div>
+            <div class="tag-name">票务优先</div>
+            <div class="tag-desc">享有票务购买优先权</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">687</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-handshake"></i>
+            </div>
+            <div class="tag-name">球员见面会</div>
+            <div class="tag-desc">参加球员见面活动</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">432</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-card">
+            <div class="tag-icon">
+              <i class="fas fa-building"></i>
+            </div>
+            <div class="tag-name">俱乐部参观</div>
+            <div class="tag-desc">参观俱乐部设施</div>
+            <div class="tag-stats">
+              <div class="stat">
+                <div class="stat-value">378</div>
+                <div class="stat-label">会员</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-outline">
+          <i class="fas fa-times"></i> 取消
+        </button>
+        <button class="btn btn-primary" id="saveTags">
+          <i class="fas fa-save"></i> 保存标签选择
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+  import { listMemberTag, getMemberTag, delMemberTag, addMemberTag, updateMemberTag } from "@/api/memberManagement/memberTag"
+
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        // 遮罩层
+        loading: true,
+        // 选中数组
+        ids: [],
+        // 非单个禁用
+        single: true,
+        // 非多个禁用
+        multiple: true,
+        // 显示搜索条件
+        showSearch: true,
+        // 总条数
+        total: 0,
+        // 标签定义表格数据
+        memberTagList: [],
+        // 弹出层标题
+        title: "",
+        // 是否显示弹出层
+        open: false,
+        // 查询参数
+        queryParams: {
+          pageNum: 1,
+          pageSize: 10,
+          name: null,
+          createBy: null,
+          updateBy: null,
+          updateTime: null,
+        },
+        // 表单参数
+        form: {},
+        // 表单校验
+        rules: {
+          name: [
+            { required: true, message: "标签名称不能为空", trigger: "blur" }
+          ],
+          createBy: [
+            { required: true, message: "创建人(sys_user.user_id)不能为空", trigger: "blur" }
+          ],
+          createTime: [
+            { required: true, message: "创建时间不能为空", trigger: "blur" }
+          ],
+        }
+      }
+    },
+    created() {
+      this.getList()
+    },
+    methods: {
+      /** 查询标签定义列表 */
+      getList() {
+        this.loading = true
+        listMemberTag(this.queryParams).then(response => {
+          this.memberTagList = response.rows
+          this.total = response.total
+          this.loading = false
+        })
+      },
+      // 取消按钮
+      cancel() {
+        this.open = false
+        this.reset()
+      },
+      // 表单重置
+      reset() {
+        this.form = {
+          tagId: null,
+          name: null,
+          createBy: null,
+          createTime: null,
+          updateBy: null,
+          updateTime: null,
+          delFlag: null
+        }
+        this.resetForm("form")
+      },
+      /** 搜索按钮操作 */
+      handleQuery() {
+        this.queryParams.pageNum = 1
+        this.getList()
+      },
+      /** 重置按钮操作 */
+      resetQuery() {
+        this.resetForm("queryForm")
+        this.handleQuery()
+      },
+      // 多选框选中数据
+      handleSelectionChange(selection) {
+        this.ids = selection.map(item => item.tagId)
+        this.single = selection.length!==1
+        this.multiple = !selection.length
+      },
+      /** 新增按钮操作 */
+      handleAdd() {
+        this.reset()
+        this.open = true
+        this.title = "添加标签定义"
+      },
+      /** 修改按钮操作 */
+      handleUpdate(row) {
+        this.reset()
+        const tagId = row.tagId || this.ids
+        getMemberTag(tagId).then(response => {
+          this.form = response.data
+          this.open = true
+          this.title = "修改标签定义"
+        })
+      },
+      /** 提交按钮 */
+      submitForm() {
+        this.$refs["form"].validate(valid => {
+          if (valid) {
+            if (this.form.tagId != null) {
+              updateMemberTag(this.form).then(response => {
+                this.$modal.msgSuccess("修改成功")
+                this.open = false
+                this.getList()
+              })
+            } else {
+              addMemberTag(this.form).then(response => {
+                this.$modal.msgSuccess("新增成功")
+                this.open = false
+                this.getList()
+              })
+            }
+          }
+        })
+      },
+      /** 删除按钮操作 */
+      handleDelete(row) {
+        const tagIds = row.tagId || this.ids
+        this.$modal.confirm('是否确认删除标签定义编号为"' + tagIds + '"的数据项？').then(function() {
+          return delMemberTag(tagIds)
+        }).then(() => {
+          this.getList()
+          this.$modal.msgSuccess("删除成功")
+        }).catch(() => {})
+      },
+      /** 导出按钮操作 */
+      handleExport() {
+        this.download('memberManagement/memberTag/export', {
+          ...this.queryParams
+        }, `memberTag_${new Date().getTime()}.xlsx`)
+      }
+    }
+  });
+
+  // 示例：保存标签选择的函数
+  function saveSelectedTags() {
+    // 从界面收集已选标签ID
+    const selectedTags = [];
+    document.querySelectorAll('.tag-card.selected').forEach(card => {
+      // 实际应用中，这里应该获取标签ID
+      const tagName = card.querySelector('.tag-name').textContent;
+      selectedTags.push(tagName);
+    });
+
+    // 调用您的API保存数据
+    console.log("保存的标签:", selectedTags);
+
+    // 显示成功消息（实际应用中应替换为您的通知系统）
+    alert(`成功保存 ${selectedTags.length} 个标签！`);
+  }
+
+  // 绑定保存按钮事件
+  document.getElementById('saveTags').addEventListener('click', saveSelectedTags);
+
+  // 绑定标签选择事件（仅为界面效果）
+  document.querySelectorAll('.tag-card').forEach(card => {
+    card.addEventListener('click', function() {
+      this.classList.toggle('selected');
+      updateSelectedCount();
+    });
+  });
+
+  // 绑定标签删除事件（仅为界面效果）
+  document.querySelectorAll('.selected-tag i').forEach(icon => {
+    icon.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const tagName = this.previousElementSibling.textContent;
+      this.parentElement.remove();
+
+      // 取消主卡片的选择状态（仅为演示）
+      document.querySelectorAll('.tag-card').forEach(card => {
+        if(card.querySelector('.tag-name').textContent === tagName) {
+          card.classList.remove('selected');
+        }
+      });
+
+      updateSelectedCount();
+    });
+  });
+
+  // 更新已选标签计数
+  function updateSelectedCount() {
+    const count = document.querySelectorAll('.tag-card.selected').length;
+    document.getElementById('selectedCount').textContent = count;
+  }
+
+  // 搜索功能（仅为界面效果）
+  document.getElementById('searchBtn').addEventListener('click', function() {
+    const searchTerm = document.getElementById('tagSearch').value.toLowerCase();
+    if(!searchTerm) return;
+
+    // 显示搜索结果（实际应用中应调用API）
+    alert(`搜索: ${searchTerm}\n实际应用中这里应显示搜索结果`);
+  });
+</script>
+</body>
+</html>

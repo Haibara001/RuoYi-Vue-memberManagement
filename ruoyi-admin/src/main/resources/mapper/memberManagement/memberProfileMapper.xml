@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.memberManagement.mapper.memberProfileMapper">
+    
+    <resultMap type="memberProfile" id="memberProfileResult">
+        <result property="userId"    column="user_id"    />
+        <result property="studentId"    column="student_id"    />
+        <result property="joinTime"    column="join_time"    />
+        <result property="position"    column="position"    />
+        <result property="introduction"    column="introduction"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectmemberProfileVo">
+        select user_id, student_id, join_time, position, introduction, update_by, update_time, del_flag from association_profile
+    </sql>
+
+    <select id="selectmemberProfileList" parameterType="memberProfile" resultMap="memberProfileResult">
+        <include refid="selectmemberProfileVo"/>
+        <where>  
+        </where>
+    </select>
+    
+    <select id="selectmemberProfileByUserId" parameterType="Long" resultMap="memberProfileResult">
+        <include refid="selectmemberProfileVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <insert id="insertmemberProfile" parameterType="memberProfile">
+        insert into association_profile
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="studentId != null and studentId != ''">student_id,</if>
+            <if test="joinTime != null">join_time,</if>
+            <if test="position != null">position,</if>
+            <if test="introduction != null">introduction,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="studentId != null and studentId != ''">#{studentId},</if>
+            <if test="joinTime != null">#{joinTime},</if>
+            <if test="position != null">#{position},</if>
+            <if test="introduction != null">#{introduction},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updatememberProfile" parameterType="memberProfile">
+        update association_profile
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentId != null and studentId != ''">student_id = #{studentId},</if>
+            <if test="joinTime != null">join_time = #{joinTime},</if>
+            <if test="position != null">position = #{position},</if>
+            <if test="introduction != null">introduction = #{introduction},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deletememberProfileByUserId" parameterType="Long">
+        delete from association_profile where user_id = #{userId}
+    </delete>
+
+    <delete id="deletememberProfileByUserIds" parameterType="String">
+        delete from association_profile where user_id in 
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>
