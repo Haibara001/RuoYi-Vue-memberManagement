@@ -3,16 +3,11 @@ package com.ruoyi.memberManagement.controller;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.memberManagement.domain.myFriend;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -34,6 +29,19 @@ public class memberFriendController extends BaseController
 {
     @Autowired
     private ImemberFriendService memberFriendService;
+
+
+    /**
+     * 分页查询“我的好友”
+     */
+    @PreAuthorize("@ss.hasPermi('memberManagement:memberFriend:list')")
+    @GetMapping("/myFriends")
+    public TableDataInfo myFriends(@RequestParam Long userId) {
+        startPage();
+        List<myFriend> list = memberFriendService.listMyFriends(userId);
+        return getDataTable(list);
+    }
+
 
     /**
      * 查询会员好友关系列表
@@ -89,16 +97,16 @@ public class memberFriendController extends BaseController
         mf1.setCreateTime(now);
         int rows1 = memberFriendService.insertmemberFriend(mf1);
 
-        // 再插 B→A
-        memberFriend mf2 = new memberFriend();
-        mf2.setUserA(userB);
-        mf2.setUserB(userA);
-        mf2.setCreateTime(now);
-        int rows2 = memberFriendService.insertmemberFriend(mf2);
+//        // 再插 B→A
+//        memberFriend mf2 = new memberFriend();
+//        mf2.setUserA(userB);
+//        mf2.setUserB(userA);
+//        mf2.setCreateTime(now);
+//        int rows2 = memberFriendService.insertmemberFriend(mf2);
 
         // rows1 + rows2 应该是 2 才算全部成功
-        int total = rows1 + rows2;
-        return total == 2
+//        int total = rows1 + rows2;
+        return rows1 == 1
                 ? AjaxResult.success("好友关系添加成功")
                 : AjaxResult.error("好友关系添加失败");
     }

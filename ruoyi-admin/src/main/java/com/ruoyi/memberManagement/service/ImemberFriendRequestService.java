@@ -2,6 +2,7 @@ package com.ruoyi.memberManagement.service;
 
 import java.util.List;
 import com.ruoyi.memberManagement.domain.memberFriendRequest;
+import com.ruoyi.memberManagement.domain.myFriend;
 
 /**
  * 会员好友申请Service接口

@@ -2,6 +2,7 @@ package com.ruoyi.memberManagement.service;
 
 import java.util.List;
 import com.ruoyi.memberManagement.domain.memberFriend;
+import com.ruoyi.memberManagement.domain.myFriend;
 
 /**
  * 会员好友关系Service接口
@@ -11,6 +12,17 @@ import com.ruoyi.memberManagement.domain.memberFriend;
  */
 public interface ImemberFriendService 
 {
+
+
+
+    /**
+     * 查询“我的好友”列表
+     * @param userId 当前登录用户ID
+     * @return 对方 ID + 对方姓名 + 成为好友时间
+     */
+    List<myFriend> listMyFriends(Long userId);
+
+
     /**
      * 查询会员好友关系
      * 

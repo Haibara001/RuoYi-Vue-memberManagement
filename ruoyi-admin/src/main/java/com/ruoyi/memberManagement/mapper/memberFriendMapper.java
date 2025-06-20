@@ -2,6 +2,7 @@ package com.ruoyi.memberManagement.mapper;
 
 import java.util.List;
 import com.ruoyi.memberManagement.domain.memberFriend;
+import com.ruoyi.memberManagement.domain.myFriend;
 
 /**
  * 会员好友关系Mapper接口
@@ -58,4 +59,6 @@ public interface memberFriendMapper
      * @return 结果
      */
     public int deletememberFriendByUserAs(Long[] userAs);
+
+    List<myFriend> listMyFriends(Long userId);
 }

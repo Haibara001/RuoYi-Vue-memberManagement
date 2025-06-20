@@ -1,51 +1,51 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="申请人sys_user.user_id" prop="userId">
-        <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入申请人sys_user.user_id"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="申请人姓名" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入申请人姓名"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="联系方式" prop="contact">
-        <el-input
-          v-model="queryParams.contact"
-          placeholder="请输入联系方式"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="审核人sys_user.user_id" prop="reviewerId">
-        <el-input
-          v-model="queryParams.reviewerId"
-          placeholder="请输入审核人sys_user.user_id"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="审核时间" prop="reviewTime">
-        <el-date-picker clearable
-          v-model="queryParams.reviewTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择审核时间">
-        </el-date-picker>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+<!--    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">-->
+<!--      <el-form-item label="申请人sys_user.user_id" prop="userId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.userId"-->
+<!--          placeholder="请输入申请人sys_user.user_id"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="申请人姓名" prop="name">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.name"-->
+<!--          placeholder="请输入申请人姓名"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="联系方式" prop="contact">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.contact"-->
+<!--          placeholder="请输入联系方式"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="审核人sys_user.user_id" prop="reviewerId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.reviewerId"-->
+<!--          placeholder="请输入审核人sys_user.user_id"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="审核时间" prop="reviewTime">-->
+<!--        <el-date-picker clearable-->
+<!--          v-model="queryParams.reviewTime"-->
+<!--          type="date"-->
+<!--          value-format="yyyy-MM-dd"-->
+<!--          placeholder="请选择审核时间">-->
+<!--        </el-date-picker>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item>-->
+<!--        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>-->
+<!--        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>-->
+<!--      </el-form-item>-->
+<!--    </el-form>-->
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -138,14 +138,28 @@
     <!-- 添加或修改会员入会申请对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <!-- 非管理员可编辑字段，管理员编辑时禁用 -->
         <el-form-item label="申请人姓名" prop="name">
-          <el-input v-model="form.name" placeholder="请输入申请人姓名" />
+          <el-input
+            v-model="form.name"
+            placeholder="请输入申请人姓名"
+            :disabled="isAdminEditing"
+          />
         </el-form-item>
         <el-form-item label="联系方式" prop="contact">
-          <el-input v-model="form.contact" placeholder="请输入联系方式" />
+          <el-input
+            v-model="form.contact"
+            placeholder="请输入联系方式"
+            :disabled="isAdminEditing"
+          />
         </el-form-item>
         <el-form-item label="申请理由" prop="reason">
-          <el-input v-model="form.reason" type="textarea" placeholder="请输入内容" />
+          <el-input
+            v-model="form.reason"
+            type="textarea"
+            placeholder="请输入内容"
+            :disabled="isAdminEditing"
+          />
         </el-form-item>
 
 
@@ -240,11 +254,19 @@ export default {
     currentUserId() {
       // 如果你在 store.state.user.userId 是数字，就返回数字
       return this.$store.state.user.id
+    },
+    // 判断是否是管理员在编辑
+    isAdminEditing() {
+      const userRoles = this.$store.getters.roles || [];
+      return userRoles.some(role => ['admin', 'adminCommon'].includes(role));
     }
   },
   methods: {
     /** 查询会员入会申请列表 */
     getList() {
+      if(!this.isAdminEditing) {
+        this.queryParams.userId = this.currentUserId
+      }
       this.loading = true
       listMemberApplication(this.queryParams).then(response => {
         this.memberApplicationList = response.rows

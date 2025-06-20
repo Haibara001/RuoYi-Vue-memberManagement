@@ -18,17 +18,17 @@
           v-hasPermi="['memberManagement:memberFriend:add']"
         >新增</el-button>
       </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['memberManagement:memberFriend:edit']"
-        >修改</el-button>
-      </el-col>
+<!--      <el-col :span="1.5">-->
+<!--        <el-button-->
+<!--          type="success"-->
+<!--          plain-->
+<!--          icon="el-icon-edit"-->
+<!--          size="mini"-->
+<!--          :disabled="single"-->
+<!--          @click="handleUpdate"-->
+<!--          v-hasPermi="['memberManagement:memberFriend:edit']"-->
+<!--        >修改</el-button>-->
+<!--      </el-col>-->
       <el-col :span="1.5">
         <el-button
           type="danger"
@@ -55,17 +55,21 @@
 
     <el-table v-loading="loading" :data="memberFriendList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="好友一sys_user.user_id" align="center" prop="userA" />
-      <el-table-column label="好友二sys_user.user_id" align="center" prop="userB" />
+      <!-- 只显示对方姓名 -->
+      <el-table-column label="好友姓名" prop="friendName" align="center"/>
+      <!-- 显示成为好友时间 -->
+      <el-table-column label="成为好友时间" prop="createTime" align="center"/>
+<!--      <el-table-column label="好友一sys_user.user_id" align="center" prop="userA" />-->
+<!--      <el-table-column label="好友二sys_user.user_id" align="center" prop="userB" />-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['memberManagement:memberFriend:edit']"
-          >修改</el-button>
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-edit"-->
+<!--            @click="handleUpdate(scope.row)"-->
+<!--            v-hasPermi="['memberManagement:memberFriend:edit']"-->
+<!--          >修改</el-button>-->
           <el-button
             size="mini"
             type="text"
@@ -99,6 +103,7 @@
 
 <script>
 import { listMemberFriend, getMemberFriend, delMemberFriend, addMemberFriend, updateMemberFriend } from "@/api/memberManagement/memberFriend"
+import { listMyFriends } from '@/api/memberManagement/memberFriend'
 
 export default {
   name: "MemberFriend",
@@ -126,6 +131,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        userId: null
       },
       // 表单参数
       form: {},
@@ -138,6 +144,8 @@ export default {
     }
   },
   created() {
+    // 带上当前登录用户 ID
+    this.queryParams.userId = this.currentUserId
     this.getList()
   },
   computed: {
@@ -149,11 +157,14 @@ export default {
     /** 查询会员好友关系列表 */
     getList() {
       this.loading = true
-      listMemberFriend(this.queryParams).then(response => {
-        this.memberFriendList = response.rows
-        this.total = response.total
-        this.loading = false
-      })
+      listMyFriends(this.queryParams)
+        .then(response => {
+          this.memberFriendList = response.rows
+          this.total = response.total
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
     // 取消按钮
     cancel() {
@@ -192,15 +203,15 @@ export default {
       this.title = "添加会员好友关系"
     },
     /** 修改按钮操作 */
-    handleUpdate(row) {
-      this.reset()
-      const userA = row.userA || this.ids
-      getMemberFriend(userA).then(response => {
-        this.form = response.data
-        this.open = true
-        this.title = "修改会员好友关系"
-      })
-    },
+    // handleUpdate(row) {
+    //   this.reset()
+    //   const userA = row.userA || this.ids
+    //   getMemberFriend(userA).then(response => {
+    //     this.form = response.data
+    //     this.open = true
+    //     this.title = "修改会员好友关系"
+    //   })
+    // },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
@@ -223,7 +234,11 @@ export default {
     },
     /** 删除按钮操作 */
     handleDelete(row) {
+
       const userAs = row.userA || this.ids
+
+      console.log('即将删除用户：', userAs)
+
       this.$modal.confirm('是否确认删除会员好友关系编号为"' + userAs + '"的数据项？').then(function() {
         return delMemberFriend(userAs)
       }).then(() => {

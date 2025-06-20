@@ -14,6 +14,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select user_a, user_b, create_time from association_friend
     </sql>
 
+    <!-- === 新增：查询“我的好友” === -->
+    <!-- 省略 resultMap / 其它 crud … -->
+
+    <select id="listMyFriends"
+            parameterType="long"
+            resultType="com.ruoyi.memberManagement.domain.myFriend">
+        SELECT
+            CASE
+                WHEN f.user_a = #{userId} THEN f.user_b
+                ELSE f.user_a
+                END           AS friendId,
+            u.user_name   AS friendName,
+            f.create_time AS createTime
+        FROM association_friend f
+                 JOIN sys_user u
+                      ON u.user_id = (CASE
+                                          WHEN f.user_a = #{userId} THEN f.user_b
+                                          ELSE f.user_a
+                          END)
+        WHERE (f.user_a = #{userId} OR f.user_b = #{userId})
+        ORDER BY f.create_time DESC
+    </select>
+
     <select id="selectmemberFriendList" parameterType="memberFriend" resultMap="memberFriendResult">
         <include refid="selectmemberFriendVo"/>
         <where>  

@@ -2,6 +2,7 @@ package com.ruoyi.memberManagement.service.impl;
 
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.memberManagement.domain.myFriend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.memberManagement.mapper.memberFriendRequestMapper;
@@ -19,7 +20,6 @@ public class memberFriendRequestServiceImpl implements ImemberFriendRequestServi
 {
     @Autowired
     private memberFriendRequestMapper memberFriendRequestMapper;
-
     /**
      * 查询会员好友申请
      * 

@@ -1,5 +1,15 @@
 import request from '@/utils/request'
 
+// 查询“我的好友”
+export function listMyFriends(params) {
+  return request({
+    url: '/memberManagement/memberFriend/myFriends',
+    method: 'get',
+    params
+  })
+}
+
+
 // 查询会员好友关系列表
 export function listMemberFriend(query) {
   return request({

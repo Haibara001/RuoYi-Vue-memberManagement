@@ -2,6 +2,7 @@ package com.ruoyi.memberManagement.service.impl;
 
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.memberManagement.domain.myFriend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.memberManagement.mapper.memberFriendMapper;
@@ -19,6 +20,14 @@ public class memberFriendServiceImpl implements ImemberFriendService
 {
     @Autowired
     private memberFriendMapper memberFriendMapper;
+
+    /**
+     * 查询“我的好友”列表
+     */
+    @Override
+    public List<myFriend> listMyFriends(Long userId) {
+        return memberFriendMapper.listMyFriends(userId);
+    }
 
     /**
      * 查询会员好友关系
