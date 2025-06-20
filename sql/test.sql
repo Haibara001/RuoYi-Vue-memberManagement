@@ -180,3 +180,6 @@ CREATE TABLE `association_application` (
                                            CONSTRAINT `fk_app_reviewer`   FOREIGN KEY (`reviewer_id`)  REFERENCES `sys_user`(`user_id`) ON DELETE SET NULL,
                                            CONSTRAINT `fk_app_update_by`  FOREIGN KEY (`update_by`)    REFERENCES `sys_user`(`user_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='会员入会申请表';
+
+ALTER TABLE association_application
+    MODIFY COLUMN status VARCHAR(10);  -- 建议预留空间（如 10）

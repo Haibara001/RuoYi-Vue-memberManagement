@@ -234,31 +234,59 @@ export default {
   },
   methods: {
 
+    /** 新增关系操作 */
+    createFriendRelation(row) {
+      const payload = {
+        userA: row.fromUser,
+        userB: row.toUser
+      }
+      addMemberFriend(payload)
+        .then(() => {
+          this.$modal.msgSuccess('好友关系添加成功')
+        })
+        .catch(() => {
+          this.$modal.msgError('好友关系添加失败')
+        })
+    },
+
     /** 同意好友请求 */
     agreeRequest(row) {
-      this.$modal.confirm("确认同意该好友申请？").then(() => {
-        updateMemberFriendRequest({
-          ...row,
-          status: 1
-        }).then(() => {
-          this.$modal.msgSuccess("已同意");
-          // this.handleAddFriend()
-          this.getList();
-        });
-      });
+      this.$modal.confirm("确认同意该好友申请？")
+        .then(() => {
+          // 1. 更新申请状态
+          return updateMemberFriendRequest({
+            ...row,
+            status: "已同意"
+          })
+        })
+        .then(() => {
+          this.$modal.msgSuccess("已同意")
+          // 2. 真正去创建好友关系
+          this.createFriendRelation(row)
+          // 3. 刷新列表
+          this.getList()
+        })
+        .catch(() => {
+          this.$modal.msgError("操作失败")
+        })
     },
 
     /** 拒绝好友请求 */
     rejectRequest(row) {
-      this.$modal.confirm("确认拒绝该好友申请？").then(() => {
-        updateMemberFriendRequest({
-          ...row,
-          status: 2
-        }).then(() => {
-          this.$modal.msgSuccess("已拒绝");
-          this.getList();
-        });
-      });
+      this.$modal.confirm("确认拒绝该好友申请？")
+        .then(() => {
+          return updateMemberFriendRequest({
+            ...row,
+            status: "已拒绝"
+          })
+        })
+        .then(() => {
+          this.$modal.msgSuccess("已拒绝")
+          this.getList()
+        })
+        .catch(() => {
+          this.$modal.msgError("操作失败")
+        })
     },
 
 
@@ -308,18 +336,6 @@ export default {
       this.multiple = !selection.length
     },
 
-    /** 新增关系按钮操作 */
-
-    // handleAddFriend() {
-    //   this.reset()
-    //   this.open = true
-    //   this.title = "添加会员好友关系"
-    //   addMemberFriend(this.form).then(response => {
-    //     this.$modal.msgSuccess("新增成功")
-    //     this.open = false
-    //     this.getList()
-    //   })
-    // },
 
     /** 新增按钮操作 */
     handleAdd() {

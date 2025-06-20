@@ -3,6 +3,8 @@ package com.ruoyi.memberManagement.controller;
 import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.common.core.domain.entity.SysRole;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +50,20 @@ public class memberApplicationController extends BaseController
     public TableDataInfo list(memberApplication memberApplication)
     {
         startPage();
+
+        Long userId = getUserId();
+        List<SysRole> roleList = sysRoleService.selectRolesByUserId(userId);
+
+        // 判断是否为管理员或一般管理员
+        boolean isAdmin = roleList.stream()
+                .map(SysRole::getRoleKey)
+                .anyMatch(key -> "admin".equals(key) || "adminCommon".equals(key));
+
+        // 如果不是管理员，就设置当前用户ID为查询条件
+        if (!isAdmin) {
+            memberApplication.setUserId(userId);
+        }
+
         List<memberApplication> list = memberApplicationService.selectmemberApplicationList(memberApplication);
         return getDataTable(list);
     }

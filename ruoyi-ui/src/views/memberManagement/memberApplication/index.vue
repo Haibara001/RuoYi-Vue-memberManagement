@@ -236,6 +236,12 @@ export default {
   created() {
     this.getList()
   },
+  computed: {
+    currentUserId() {
+      // 如果你在 store.state.user.userId 是数字，就返回数字
+      return this.$store.state.user.id
+    }
+  },
   methods: {
     /** 查询会员入会申请列表 */
     getList() {
@@ -276,6 +282,10 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm")
+      // 重置后，如果是普通用户，仍然保持用户ID条件
+      if (!hasRole(['admin', 'adminCommon'])) {
+        this.queryParams.userId = getUserId()
+      }
       this.handleQuery()
     },
     // 多选框选中数据

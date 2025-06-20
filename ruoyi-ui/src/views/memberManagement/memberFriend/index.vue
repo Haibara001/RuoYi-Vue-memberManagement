@@ -76,7 +76,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
@@ -139,6 +139,11 @@ export default {
   },
   created() {
     this.getList()
+  },
+  computed: {
+    currentUserId() {
+      return this.$store.state.user.id
+    }
   },
   methods: {
     /** 查询会员好友关系列表 */
