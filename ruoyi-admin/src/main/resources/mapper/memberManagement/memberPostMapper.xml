@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.memberManagement.mapper.memberPostMapper">
+    
+    <resultMap type="memberPost" id="memberPostResult">
+        <result property="postId"    column="post_id"    />
+        <result property="authorId"    column="author_id"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="visibility"    column="visibility"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectmemberPostVo">
+        select post_id, author_id, title, content, visibility, create_time, update_by, update_time, del_flag from association_post
+    </sql>
+
+    <select id="selectmemberPostList" parameterType="memberPost" resultMap="memberPostResult">
+        <include refid="selectmemberPostVo"/>
+        <where>
+            <!-- 只查当前用户自己的帖子 -->
+<!--            <if test="authorId != null">-->
+<!--                AND author_id = #{authorId}-->
+<!--            </if>-->
+            <!-- 标题做模糊匹配 -->
+            <if test="title != null and title.trim() != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <!-- 可见范围精确匹配：只判断不为 null -->
+            <if test="visibility != null">
+                <choose>
+                    <when test="visibility == 1">
+                        AND visibility = '全部可见'
+                    </when>
+                    <when test="visibility == 2">
+                        AND visibility = '好友可见'
+                    </when>
+                    <when test="visibility == 3">
+                        AND visibility = '自己可见'
+                    </when>
+                    <!-- 如果可能还有其它值，也可以加个 <otherwise> -->
+                </choose>
+            </if>
+<!--            <if test="title != null  and title != ''"> and title = #{title}</if>-->
+            <if test="content != null  and content != ''"> and content like concat('%', #{content}, '%')</if>
+<!--            <if test="visibility != null  and visibility != ''"> and visibility = #{visibility}</if>-->
+            <if test="updateBy != null "> and update_by = #{updateBy}</if>
+            <if test="updateTime != null "> and update_time = #{updateTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectmemberPostByPostId" parameterType="Long" resultMap="memberPostResult">
+        <include refid="selectmemberPostVo"/>
+        where post_id = #{postId}
+    </select>
+
+    <insert id="insertmemberPost" parameterType="memberPost" useGeneratedKeys="true" keyProperty="postId">
+        insert into association_post
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="authorId != null">author_id,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="visibility != null and visibility != ''">visibility,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="authorId != null">#{authorId},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="visibility != null and visibility != ''">#{visibility},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updatememberPost" parameterType="memberPost">
+        update association_post
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="authorId != null">author_id = #{authorId},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="visibility != null and visibility != ''">visibility = #{visibility},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where post_id = #{postId}
+    </update>
+
+    <delete id="deletememberPostByPostId" parameterType="Long">
+        delete from association_post where post_id = #{postId}
+    </delete>
+
+    <delete id="deletememberPostByPostIds" parameterType="String">
+        delete from association_post where post_id in 
+        <foreach item="postId" collection="array" open="(" separator="," close=")">
+            #{postId}
+        </foreach>
+    </delete>
+</mapper>
