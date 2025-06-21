@@ -70,4 +70,8 @@ public interface ImemberFriendService
      * @return 结果
      */
     public int deletememberFriendByUserA(Long userA);
+
+    /** 删除 userA→userB 的好友关系 */
+    int deleteByUserAAndUserB(Long userA, Long userB);
+
 }

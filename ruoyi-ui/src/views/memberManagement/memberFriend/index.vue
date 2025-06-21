@@ -70,6 +70,14 @@
 <!--            @click="handleUpdate(scope.row)"-->
 <!--            v-hasPermi="['memberManagement:memberFriend:edit']"-->
 <!--          >修改</el-button>-->
+
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-user"
+            @click="handleViewFriend(row)"
+          >查看</el-button>
+
           <el-button
             size="mini"
             type="text"
@@ -103,7 +111,8 @@
 
 <script>
 import { listMemberFriend, getMemberFriend, delMemberFriend, addMemberFriend, updateMemberFriend } from "@/api/memberManagement/memberFriend"
-import { listMyFriends } from '@/api/memberManagement/memberFriend'
+import { listMyFriends, delMyFriend } from '@/api/memberManagement/memberFriend'
+
 
 export default {
   name: "MemberFriend",
@@ -233,19 +242,35 @@ export default {
       })
     },
     /** 删除按钮操作 */
+
     handleDelete(row) {
-
-      const userAs = row.userA || this.ids
-
-      console.log('即将删除用户：', userAs)
-
-      this.$modal.confirm('是否确认删除会员好友关系编号为"' + userAs + '"的数据项？').then(function() {
-        return delMemberFriend(userAs)
-      }).then(() => {
-        this.getList()
-        this.$modal.msgSuccess("删除成功")
-      }).catch(() => {})
+      const friendId = row.friendId;
+      if (!friendId) {
+        this.$modal.msgError('请先选择要删除的好友');
+        return;
+      }
+      this.$modal.confirm(`确认删除好友 “${row.friendName}”？`)
+        .then(() => delMyFriend(friendId))
+        .then(() => {
+          this.getList();
+          this.$modal.msgSuccess('删除成功');
+        })
+        .catch(() => {});
     },
+    // handleDelete(row) {
+    //
+    //   let userAs = row && row.friendId ? row.friendId : this.ids
+    //   let currentUserId = this.currentUserId
+    //   console.log('即将删除用户：', userAs)
+    //   userAs = userAs+currentUserId
+    //
+    //   this.$modal.confirm('是否确认删除会员好友关系编号为"' + userAs + '"的数据项？'+'当前用户为:'+ currentUserId).then(function() {
+    //     return delMemberFriend(userAs)
+    //   }).then(() => {
+    //     this.getList()
+    //     this.$modal.msgSuccess("删除成功")
+    //   }).catch(() => {})
+    // },
     /** 导出按钮操作 */
     handleExport() {
       this.download('memberManagement/memberFriend/export', {

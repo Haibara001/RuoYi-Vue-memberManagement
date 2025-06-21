@@ -101,4 +101,9 @@ public class memberFriendServiceImpl implements ImemberFriendService
     {
         return memberFriendMapper.deletememberFriendByUserA(userA);
     }
+
+    @Override
+    public int deleteByUserAAndUserB(Long userA, Long userB) {
+        return memberFriendMapper.deleteByUserAAndUserB(userA, userB);
+    }
 }

@@ -104,7 +104,7 @@
     <!-- “我的标签” 卡片视图 -->
     <el-row v-else :gutter="20">
       <el-col
-        v-for="item in userTagsWithName"
+        v-for="item in myTags"
         :key="item.tagId"
         :xs="24" :sm="12" :md="12" :lg="6"
       >
@@ -288,6 +288,7 @@ export default {
         createBy: null,
         updateBy: null,
         updateTime: null,
+        userId: null,
       },
       // 表单参数
       form: {},
@@ -309,6 +310,13 @@ export default {
     this.getList()
   },
   computed: {
+    myTags() {
+      return this.userTagsWithName.filter(item => item.userId === this.currentUserId)
+    },
+    currentUserId() {
+      // 如果你在 store.state.user.userId 是数字，就返回数字
+      return this.$store.state.user.id
+    },
     userTagsWithName() {
       return this.memberUserTagList.map(item => {
         const tag = this.memberTagList.find(t => t.tagId === item.tagId) || {}
@@ -360,7 +368,9 @@ export default {
       const query = {
         pageNum: this.queryParams.pageNum,
         pageSize: this.queryParams.pageSize,
+        userId: this.currentUserId
       };
+
       this.loading = true
       listMemberUserTag(query).then(response => {
         this.memberUserTagList = response.rows

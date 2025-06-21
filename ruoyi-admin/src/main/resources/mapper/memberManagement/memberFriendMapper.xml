@@ -81,4 +81,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{userA}
         </foreach>
     </delete>
+
+    <delete id="deleteByUserAAndUserB" parameterType="map">
+        DELETE FROM association_friend
+        WHERE user_a = #{userA}
+          AND user_b = #{userB}
+    </delete>
 </mapper>

@@ -3,6 +3,7 @@ package com.ruoyi.memberManagement.mapper;
 import java.util.List;
 import com.ruoyi.memberManagement.domain.memberFriend;
 import com.ruoyi.memberManagement.domain.myFriend;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 会员好友关系Mapper接口
@@ -59,6 +60,16 @@ public interface memberFriendMapper
      * @return 结果
      */
     public int deletememberFriendByUserAs(Long[] userAs);
+
+    /**
+     * 删除 userA → userB 的一条记录
+     * @param userA 当前用户 ID
+     * @param userB 好友用户 ID
+     * @return 删除的行数
+     */
+    int deleteByUserAAndUserB(@Param("userA") Long userA, @Param("userB") Long userB);
+
+
 
     List<myFriend> listMyFriends(Long userId);
 }

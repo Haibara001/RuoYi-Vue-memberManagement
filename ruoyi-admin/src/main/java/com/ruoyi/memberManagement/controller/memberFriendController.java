@@ -122,14 +122,12 @@ public class memberFriendController extends BaseController
         return toAjax(memberFriendService.updatememberFriend(memberFriend));
     }
 
-    /**
-     * 删除会员好友关系
-     */
+    /** 删除当前用户与指定好友的关系 */
     @PreAuthorize("@ss.hasPermi('memberManagement:memberFriend:remove')")
-    @Log(title = "会员好友关系", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{userAs}")
-    public AjaxResult remove(@PathVariable Long[] userAs)
-    {
-        return toAjax(memberFriendService.deletememberFriendByUserAs(userAs));
+    @Log(title = "我的好友", businessType = BusinessType.DELETE)
+    @DeleteMapping("/myFriends/{friendId}")
+    public AjaxResult removeFriend(@PathVariable Long friendId) {
+        Long currentId = getUserId();
+        return toAjax(memberFriendService.deleteByUserAAndUserB(currentId, friendId));
     }
 }

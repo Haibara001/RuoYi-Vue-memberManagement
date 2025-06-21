@@ -230,6 +230,10 @@ export default {
     currentUserId() {
       // 如果你在 store.state.user.userId 是数字，就返回数字
       return this.$store.state.user.id
+    },
+    isAdminEditing() {
+      const userRoles = this.$store.getters.roles || [];
+      return userRoles.some(role => ['admin', 'adminCommon'].includes(role));
     }
   },
   methods: {
@@ -293,11 +297,17 @@ export default {
     /** 查询会员好友申请列表 */
     getList() {
       this.loading = true
+
       listMemberFriendRequest(this.queryParams).then(response => {
-        this.memberFriendRequestList = response.rows
-        this.total = response.total
-        this.loading = false
-      })
+        // 前端过滤：只保留与当前用户相关的记录
+        this.memberFriendRequestList = response.rows.filter(item =>
+          item.fromUser === this.currentUserId ||
+          item.toUser === this.currentUserId
+        );
+
+        this.total = this.memberFriendRequestList.length;
+        this.loading = false;
+      });
     },
     // 取消按钮
     cancel() {

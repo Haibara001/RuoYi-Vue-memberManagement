@@ -52,3 +52,13 @@ export function delMemberFriend(userA) {
     method: 'delete'
   })
 }
+
+
+// api/memberFriend.js
+export function delMyFriend(friendId) {
+  return request({
+    url: `/memberManagement/memberFriend/myFriends/${friendId}`,
+    method: 'delete'
+  });
+}
+
