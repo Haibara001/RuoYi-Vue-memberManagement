@@ -95,6 +95,12 @@
     <!-- 添加或修改会员扩展资料对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <!-- 头像上传 -->
+        <el-form-item label="头像" prop="avatar">
+          <div class="text-center">
+            <userAvatar />
+          </div>
+        </el-form-item>
         <el-form-item label="学号" prop="studentId">
           <el-input v-model="form.studentId" placeholder="请输入学号" />
         </el-form-item>
@@ -123,9 +129,11 @@
 
 <script>
 import { listMemberProfile, getMemberProfile, delMemberProfile, addMemberProfile, updateMemberProfile } from "@/api/memberManagement/memberProfile"
+import userAvatar from "@/views/system/user/profile/userAvatar.vue";
 
 export default {
   name: "MemberProfile",
+  components: {userAvatar},
   data() {
     return {
       // 遮罩层
@@ -146,10 +154,16 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+
+      // 照片
+      uploadUrl: process.env.VUE_APP_BASE_API + '/memberManagement/memberProfile/uploadAvatar',
+      previewAvatar: '',    // 上传后或者编辑时显示的头像 URL
+
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        userId: null,
       },
       // 表单参数
       form: {},
@@ -164,15 +178,43 @@ export default {
   created() {
     this.getList()
   },
+  computed: {
+    currentUserId() {
+      return this.$store.state.user.id
+    },
+    isAdminEditing() {
+      const userRoles = this.$store.getters.roles || [];
+      return userRoles.some(role => ['admin', 'adminCommon'].includes(role));
+    }
+  },
   methods: {
     /** 查询会员扩展资料列表 */
     getList() {
+      // this.$modal.confirm(`是否查看会员扩展资料 ${this.currentUserId} 的数据项？`)
       this.loading = true
-      listMemberProfile(this.queryParams).then(response => {
-        this.memberProfileList = response.rows
-        this.total = response.total
-        this.loading = false
-      })
+      this.queryParams.userId = this.currentUserId;
+      // listMemberProfile(this.queryParams).then(response => {
+      //   this.memberProfileList = response.rows
+      //   this.total = response.total
+      //   this.loading = false
+      // })
+      getMemberProfile(this.currentUserId).then(response => {
+        // 假设 response.data 是单个对象或 null
+        const data = response.data;
+        if (data) {
+          // 包装成数组供 el-table 使用
+          this.memberProfileList = [data];
+          this.total = 1;
+        } else {
+          this.memberProfileList = [];
+          this.total = 0;
+        }
+      }).catch(() => {
+        this.memberProfileList = [];
+        this.total = 0;
+      }).finally(() => {
+        this.loading = false;
+      });
     },
     // 取消按钮
     cancel() {

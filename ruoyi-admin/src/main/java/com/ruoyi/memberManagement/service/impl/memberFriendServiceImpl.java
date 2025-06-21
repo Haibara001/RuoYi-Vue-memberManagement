@@ -106,4 +106,10 @@ public class memberFriendServiceImpl implements ImemberFriendService
     public int deleteByUserAAndUserB(Long userA, Long userB) {
         return memberFriendMapper.deleteByUserAAndUserB(userA, userB);
     }
+
+    @Override
+    public boolean areFriends(Long userId, Long friendId) {
+        int count = memberFriendMapper.selectFriendRelationCount(userId, friendId);
+        return count > 0;
+    }
 }

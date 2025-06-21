@@ -72,4 +72,11 @@ public interface memberFriendMapper
 
 
     List<myFriend> listMyFriends(Long userId);
+
+
+    /**
+     * 单向判断: visitor 加了 friend 为好友记录数
+     */
+    int selectFriendRelationCount(@Param("userId") Long userId,
+                                  @Param("friendId") Long friendId);
 }

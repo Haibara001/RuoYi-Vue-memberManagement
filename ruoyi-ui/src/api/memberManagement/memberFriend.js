@@ -62,3 +62,9 @@ export function delMyFriend(friendId) {
   });
 }
 
+export function getFriendSpace(friendId) {
+  return request({
+    url: `/memberManagement/memberSpace/${friendId}`,
+    method: 'get'
+  });
+}

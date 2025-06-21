@@ -37,6 +37,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY f.create_time DESC
     </select>
 
+    <!-- 双向好友判断 -->
+    <select id="selectFriendRelationCount" resultType="int" parameterType="map">
+        SELECT COUNT(1)
+        FROM association_friend
+        WHERE (user_a = #{userId}   AND user_b = #{friendId})
+           OR (user_a = #{friendId} AND user_b = #{userId})
+    </select>
+
     <select id="selectmemberFriendList" parameterType="memberFriend" resultMap="memberFriendResult">
         <include refid="selectmemberFriendVo"/>
         <where>  

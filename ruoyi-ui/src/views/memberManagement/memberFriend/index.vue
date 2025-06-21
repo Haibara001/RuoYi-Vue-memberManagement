@@ -75,8 +75,8 @@
             size="mini"
             type="text"
             icon="el-icon-user"
-            @click="handleViewFriend(row)"
-          >查看</el-button>
+            @click="handleViewFriend(scope.row)"
+          >查看好友空间</el-button>
 
           <el-button
             size="mini"
@@ -106,12 +106,64 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+<!--    <el-dialog :visible.sync="showFriendSpace" width="600px" title="好友空间">-->
+<!--      <div v-if="friendSpaceData">-->
+<!--        <el-dialog :visible.sync="showFriendSpace" width="600px" title="好友空间">-->
+<!--          &lt;!&ndash; 先始终渲染，看看数据结构 &ndash;&gt;-->
+<!--          <pre>{{ friendSpaceData }}</pre>-->
+<!--        </el-dialog>-->
+<!--&lt;!&ndash;        <h3>基本资料</h3>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>昵称: {{ friendSpaceData.profile.nickName }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>签名: {{ friendSpaceData.profile.signature }}</p>&ndash;&gt;-->
+<!--&lt;!&ndash;        <p>是否好友: {{ friendSpaceData.isFriend ? '是' : '否' }}</p>&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <h3>动态列表</h3>&ndash;&gt;-->
+<!--&lt;!&ndash;        <el-table :data="friendSpaceData.posts" style="width: 100%">&ndash;&gt;-->
+<!--&lt;!&ndash;          <el-table-column prop="title" label="标题" />&ndash;&gt;-->
+<!--&lt;!&ndash;          <el-table-column prop="createTime" label="发布时间" />&ndash;&gt;-->
+<!--&lt;!&ndash;          <el-table-column prop="visibility" label="可见范围" />&ndash;&gt;-->
+<!--&lt;!&ndash;        </el-table>&ndash;&gt;-->
+<!--        -->
+<!--      </div>-->
+<!--    </el-dialog>-->
+    <el-dialog :visible.sync="showFriendSpace" width="600px" title="好友空间">
+      <div v-if="friendSpaceData">
+<!--        <el-dialog :visible.sync="showFriendSpace" width="600px" title="好友空间">-->
+<!--          &lt;!&ndash; 数据结构 &ndash;&gt;-->
+<!--          <pre>{{ friendSpaceData }}</pre>-->
+<!--        </el-dialog>-->
+        <h3>基本资料</h3>
+        <!-- 用实际存在的字段替换 -->
+        <p>学号: {{ friendSpaceData.profile.studentId }}</p>
+        <p>入会时间: {{ parseTime(friendSpaceData.profile.joinTime, '{y}-{m}-{d}') }}</p>
+        <p>协会职务: {{ friendSpaceData.profile.position }}</p>
+        <p>个人介绍: {{ friendSpaceData.profile.introduction }}</p>
+        <p>是否好友: {{ friendSpaceData.isFriend ? '是' : '否' }}</p>
+
+        <h3>动态列表</h3>
+        <el-table :data="visiblePosts" style="width: 100%">
+          <el-table-column prop="title" label="标题" />
+          <el-table-column
+            prop="createTime"
+            label="发布时间"
+            :formatter="row => parseTime(row.createTime, '{y}-{m}-{d} {h}:{i}:{s}')"
+          />
+          <el-table-column prop="visibility" label="可见范围" />
+          <el-table-column prop="content" label="日志内容" />
+        </el-table>
+      </div>
+    </el-dialog>
+
+
+
   </div>
 </template>
 
 <script>
 import { listMemberFriend, getMemberFriend, delMemberFriend, addMemberFriend, updateMemberFriend } from "@/api/memberManagement/memberFriend"
 import { listMyFriends, delMyFriend } from '@/api/memberManagement/memberFriend'
+import { getFriendSpace}  from "@/api/memberManagement/memberFriend";
 
 
 export default {
@@ -136,6 +188,12 @@ export default {
       title: "",
       // 是否显示弹出层
       open: false,
+
+      //好友空间数据
+      friendSpaceData: null,
+      showFriendSpace: false,
+
+
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -160,9 +218,59 @@ export default {
   computed: {
     currentUserId() {
       return this.$store.state.user.id
+    },
+    visiblePosts() {
+      const data = this.friendSpaceData;
+      if (!data || !Array.isArray(data.posts)) {
+        return [];
+      }
+      // 取出好友的 userId
+      const friendId = data.profile.userId;
+
+      return data.posts.filter(post => {
+        // 先过滤「只有本人的」
+        if (post.authorId !== friendId) {
+          return false;
+        }
+        // 全部可见
+        if (post.visibility === '全部可见') {
+          return true;
+        }
+        // 好友可见，且 isFriend 为 true
+        if (post.visibility === '好友可见' && data.isFriend) {
+          return true;
+        }
+        return false;
+      });
     }
   },
   methods: {
+
+
+    // 获取好友空间信息
+    handleViewFriend(row) {
+      const friendId = row.friendId;
+      getFriendSpace(friendId)
+        .then(response => {
+          console.log("好友空间数据：", response.data);
+          this.friendSpaceData = response.data;
+          this.showFriendSpace = true;
+        })
+        .catch(err => {
+          this.$modal.msgError("加载失败");
+          console.error(err);
+        });
+
+
+
+
+      // // 方案1：直接跳转（推荐）
+      // // this.$router.push(`/space/${friendId}`)
+      // // getFriendSpace(friendId)
+    },
+
+
+
     /** 查询会员好友关系列表 */
     getList() {
       this.loading = true

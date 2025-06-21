@@ -74,4 +74,9 @@ public interface ImemberFriendService
     /** 删除 userA→userB 的好友关系 */
     int deleteByUserAAndUserB(Long userA, Long userB);
 
+
+    /**
+     * 判断 userId 和 friendId 是否互为好友
+     */
+    boolean areFriends(Long userId, Long friendId);
 }
