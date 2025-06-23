@@ -1,7 +1,73 @@
 <template>
   <div class="app-container">
 
-    <el-row :gutter="10" class="mb8">
+    <el-row :gutter="20">
+      <!-- 左侧头像卡片 -->
+      <el-col :span="6" :xs="24">
+        <el-card class="box-card" text-align="center">
+          <div slot="header" class="clearfix">
+            <span>我的资料</span>
+          </div>
+          <div class="text-center">
+            <userAvatar />
+          </div>
+          <el-descriptions :column="1" border>
+            <el-descriptions-item label="用户昵称">
+              {{ currentUserName}}
+            </el-descriptions-item>
+          </el-descriptions>
+
+        </el-card>
+      </el-col>
+
+      <!-- 右侧详情卡片 -->
+      <el-col :span="18" :xs="24">
+        <el-card class="detail-card">
+          <el-descriptions
+            title="会员资料详情"
+            :column="2"
+            border
+            size="medium"
+          >
+
+            <el-descriptions-item label="用户ID">
+              {{ memberProfileList[0].userId }}
+            </el-descriptions-item>
+            <el-descriptions-item label="学号">
+              {{ memberProfileList[0].studentId }}
+            </el-descriptions-item>
+            <el-descriptions-item label="入会时间">
+              {{ parseTime(memberProfileList[0].joinTime, '{y}-{m}-{d}') }}
+            </el-descriptions-item>
+            <el-descriptions-item label="协会职务">
+              {{ memberProfileList[0].position }}
+            </el-descriptions-item>
+            <el-descriptions-item label="更新人">
+              {{ memberProfileList[0].updateBy }}
+            </el-descriptions-item>
+            <el-descriptions-item label="更新时间">
+              {{ parseTime(memberProfileList[0].updateTime, '{y}-{m}-{d}') }}
+            </el-descriptions-item>
+          </el-descriptions>
+
+          <el-descriptions
+            title="个人介绍"
+            :column="1"
+            border
+            size="medium"
+            class="mt-20"
+          >
+            <el-descriptions-item>
+              <div class="introduction-content">
+                {{ memberProfileList[0].introduction || '暂无个人介绍' }}
+              </div>
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <el-row :gutter="10" class="mb8 move-up">
       <el-col :span="1.5">
         <el-button
           type="primary"
@@ -18,7 +84,6 @@
           plain
           icon="el-icon-edit"
           size="mini"
-          :disabled="single"
           @click="handleUpdate"
           v-hasPermi="['memberManagement:memberProfile:edit']"
         >修改</el-button>
@@ -29,7 +94,6 @@
           plain
           icon="el-icon-delete"
           size="mini"
-          :disabled="multiple"
           @click="handleDelete"
           v-hasPermi="['memberManagement:memberProfile:remove']"
         >删除</el-button>
@@ -44,45 +108,49 @@
           v-hasPermi="['memberManagement:memberProfile:export']"
         >导出</el-button>
       </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+<!--      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>-->
     </el-row>
 
-    <el-table v-loading="loading" :data="memberProfileList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="对应sys_user.user_id" align="center" prop="userId" />
-      <el-table-column label="学号" align="center" prop="studentId" />
-      <el-table-column label="入会时间" align="center" prop="joinTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.joinTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="协会职务" align="center" prop="position" />
-      <el-table-column label="个人介绍" align="center" prop="introduction" />
-      <el-table-column label="更新人(sys_user.user_id)" align="center" prop="updateBy" />
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['memberManagement:memberProfile:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['memberManagement:memberProfile:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+
+
+
+
+      <!--    <el-table v-loading="loading" :data="memberProfileList" @selection-change="handleSelectionChange">-->
+<!--      <el-table-column type="selection" width="55" align="center" />-->
+<!--      <el-table-column label="对应sys_user.user_id" align="center" prop="userId" />-->
+<!--      <el-table-column label="学号" align="center" prop="studentId" />-->
+<!--      <el-table-column label="入会时间" align="center" prop="joinTime" width="180">-->
+<!--        <template slot-scope="scope">-->
+<!--          <span>{{ parseTime(scope.row.joinTime, '{y}-{m}-{d}') }}</span>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="协会职务" align="center" prop="position" />-->
+<!--      <el-table-column label="个人介绍" align="center" prop="introduction" />-->
+<!--      <el-table-column label="更新人(sys_user.user_id)" align="center" prop="updateBy" />-->
+<!--      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">-->
+<!--        <template slot-scope="scope">-->
+<!--          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-edit"-->
+<!--            @click="handleUpdate(scope.row)"-->
+<!--            v-hasPermi="['memberManagement:memberProfile:edit']"-->
+<!--          >修改</el-button>-->
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-delete"-->
+<!--            @click="handleDelete(scope.row)"-->
+<!--            v-hasPermi="['memberManagement:memberProfile:remove']"-->
+<!--          >删除</el-button>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--    </el-table>-->
 
     <pagination
       v-show="total>0"
@@ -130,6 +198,9 @@
 <script>
 import { listMemberProfile, getMemberProfile, delMemberProfile, addMemberProfile, updateMemberProfile } from "@/api/memberManagement/memberProfile"
 import userAvatar from "@/views/system/user/profile/userAvatar.vue";
+import memberFriend from "../memberFriend/index.vue";
+import {Upload} from "element-ui";
+import ImageUpload from "@/components/ImageUpload/index.vue";
 
 export default {
   name: "MemberProfile",
@@ -179,8 +250,20 @@ export default {
     this.getList()
   },
   computed: {
+    ImageUpload() {
+      return ImageUpload
+    },
+    Upload() {
+      return Upload
+    },
+    memberFriend() {
+      return memberFriend
+    },
     currentUserId() {
       return this.$store.state.user.id
+    },
+    currentUserName() {
+      return this.$store.state.user.nickName
     },
     isAdminEditing() {
       const userRoles = this.$store.getters.roles || [];
@@ -263,9 +346,9 @@ export default {
       this.title = "添加会员扩展资料"
     },
     /** 修改按钮操作 */
-    handleUpdate(row) {
+    handleUpdate() {
       this.reset()
-      const userId = row.userId || this.ids
+      const userId = this.currentUserId
       getMemberProfile(userId).then(response => {
         this.form = response.data
         this.open = true
@@ -293,8 +376,8 @@ export default {
       })
     },
     /** 删除按钮操作 */
-    handleDelete(row) {
-      const userIds = row.userId || this.ids
+    handleDelete() {
+      const userIds = this.currentUserId
       this.$modal.confirm('是否确认删除会员扩展资料编号为"' + userIds + '"的数据项？').then(function() {
         return delMemberProfile(userIds)
       }).then(() => {
@@ -311,3 +394,19 @@ export default {
   }
 }
 </script>
+<style scoped>
+.move-up {
+  top: -40px; /* 上移10px */
+}
+.mb8 {
+  margin-bottom: 4px;
+  margin-top: -10px;
+  height: 80px;
+}
+.app-container {
+  background: linear-gradient(135deg, #1a2a3a 0%, #f0c78a 100%);
+  color: #ffffff;
+  font-family: 'Open Sans', sans-serif;
+
+}
+</style>

@@ -47,7 +47,7 @@
 <!--      </el-form-item>-->
 <!--    </el-form>-->
 
-    <el-row :gutter="10" class="mb8">
+    <el-row :gutter="10" class="mb8" v-if="!isAdminEditing">
       <el-col :span="1.5">
         <el-button
           type="primary"
@@ -57,28 +57,6 @@
           @click="handleAdd"
           v-hasPermi="['memberManagement:memberApplication:add']"
         >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['memberManagement:memberApplication:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['memberManagement:memberApplication:remove']"
-        >删除</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -93,39 +71,88 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="memberApplicationList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="申请ID" align="center" prop="appId" />
-      <el-table-column label="申请人sys_user.user_id" align="center" prop="userId" />
-      <el-table-column label="申请人姓名" align="center" prop="name" />
-      <el-table-column label="联系方式" align="center" prop="contact" />
-      <el-table-column label="申请理由" align="center" prop="reason" />
-      <el-table-column label="审核状态" align="center" prop="status" />
-      <el-table-column label="审核人sys_user.user_id" align="center" prop="reviewerId" />
-      <el-table-column label="审核时间" align="center" prop="reviewTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.reviewTime, '{y}-{m}-{d}') }}</span>
+    <template v-if="memberApplicationList.length > 0">
+      <el-card class="detail-card mb-6" v-for="memberApplication in memberApplicationList" :key="memberApplication.appId">
+      <!-- 自定义卡片头：左侧显示“日志详情”，右侧放按钮 -->
+        <template #header>
+          <div class="flex justify-between items-center">
+            <span class="text-lg bold-text">入会申请</span>
+            <div class="space-x-2">
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleUpdate(memberApplication)"
+                v-hasPermi="['memberManagement:memberApplication:edit']"
+              >修改</el-button>
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-delete"
+                @click="handleDelete(memberApplication)"
+                v-hasPermi="['memberManagement:memberApplication:remove']"
+              >删除</el-button>
+            </div>
+          </div>
         </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['memberManagement:memberApplication:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['memberManagement:memberApplication:remove']"
-          >删除</el-button>
+
+        <el-descriptions
+          :column="2"
+          border
+          size="medium"
+        >
+
+          <el-descriptions-item label="申请ID">
+            {{ memberApplication.appId }}
+          </el-descriptions-item>
+          <el-descriptions-item label="申请人ID">
+            {{ memberApplication.userId }}
+          </el-descriptions-item>
+          <el-descriptions-item label="申请人姓名">
+            {{ memberApplication.name }}
+          </el-descriptions-item>
+          <el-descriptions-item label="联系方式">
+            {{ memberApplication.contact }}
+          </el-descriptions-item>
+          <el-descriptions-item label="申请状态">
+            {{ memberApplication.status }}
+          </el-descriptions-item>
+          <el-descriptions-item label="审核人ID">
+            {{ memberApplication.reviewerId }}
+          </el-descriptions-item>
+          <el-descriptions-item label="审核时间">
+            {{ parseTime(memberApplication.reviewTime, '{y}-{m}-{d}') }}
+          </el-descriptions-item>
+
+        </el-descriptions>
+
+
+        <el-descriptions
+          title="申请理由"
+          :column="1"
+          border
+          size="medium"
+          class="mt-20"
+        >
+          <el-descriptions-item>
+            <div class="Application-content" v-html="memberApplication.reason || '暂无申请理由'"></div>
+          </el-descriptions-item>
+        </el-descriptions>
+      </el-card>
+    </template>
+
+
+    <!-- 无申请时，渲染一个占位卡片 -->
+    <template v-else>
+      <el-card class="detail-card mb-6">
+        <template #header>
+          <span class="text-lg bold-text">入会申请</span>
         </template>
-      </el-table-column>
-    </el-table>
+        <div class="p-8 text-center text-gray-500">
+          暂无申请记录
+        </div>
+      </el-card>
+    </template>
 
     <pagination
       v-show="total>0"

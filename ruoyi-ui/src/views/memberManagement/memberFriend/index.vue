@@ -53,41 +53,109 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="memberFriendList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <!-- 只显示对方姓名 -->
-      <el-table-column label="好友姓名" prop="friendName" align="center"/>
-      <!-- 显示成为好友时间 -->
-      <el-table-column label="成为好友时间" prop="createTime" align="center"/>
-<!--      <el-table-column label="好友一sys_user.user_id" align="center" prop="userA" />-->
-<!--      <el-table-column label="好友二sys_user.user_id" align="center" prop="userB" />-->
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
+
+
+    <template v-if="memberFriendList.length > 0">
+      <el-card class="detail-card mb-6" v-for="memberFriend in memberFriendList">
+        <!-- 自定义卡片头：左侧显示“日志详情”，右侧放按钮 -->
+        <template #header>
+          <div class="flex justify-between items-center">
+            <span class="text-lg bold-text">好友列表</span>
+            <div class="space-x-2">
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleViewFriend(memberFriend)"
+              >查看好友空间</el-button>
+              <el-button
+                size="mini"
+                type="text"
+                icon="el-icon-delete"
+                @click="handleDelete(memberFriend)"
+                v-hasPermi="['memberManagement:memberFriend:remove']"
+              >删除</el-button>
+            </div>
+          </div>
+        </template>
+
+        <el-descriptions
+          :column="2"
+          border
+          size="medium"
+        >
+
+          <el-descriptions-item label="好友ID">
+            {{ memberFriend.friendId }}
+          </el-descriptions-item>
+
+          <el-descriptions-item label="好友姓名">
+            {{ memberFriend.friendName }}
+          </el-descriptions-item>
+          <el-descriptions-item label="成为好友时间">
+            {{ parseTime(memberFriend.createTime, '{y}-{m}-{d}') }}
+          </el-descriptions-item>
+
+        </el-descriptions>
+      </el-card>
+    </template>
+
+
+<!--     无申请时，渲染一个占位卡片-->
+    <template v-else>
+      <el-card class="detail-card mb-6">
+        <template #header>
+          <span class="text-lg bold-text">好友关系</span>
+        </template>
+        <div class="p-8 text-center text-gray-500">
+          暂无好友
+        </div>
+      </el-card>
+    </template>
+
+
+
+<!--    <el-table v-loading="loading" :data="memberFriendList" @selection-change="handleSelectionChange">-->
+<!--      <el-table-column type="selection" width="55" align="center" />-->
+<!--      &lt;!&ndash; 只显示对方姓名 &ndash;&gt;-->
+<!--      <el-table-column label="调试" align="center">-->
+<!--        <template  slot-scope="scope">-->
+<!--          <pre>{{scope.row}}</pre>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="好友姓名" prop="friendName" align="center"/>-->
+
+<!--      &lt;!&ndash; 显示成为好友时间 &ndash;&gt;-->
+<!--      <el-table-column label="成为好友时间" prop="createTime" align="center"/>-->
+<!--&lt;!&ndash;      <el-table-column label="好友一sys_user.user_id" align="center" prop="userA" />&ndash;&gt;-->
+<!--&lt;!&ndash;      <el-table-column label="好友二sys_user.user_id" align="center" prop="userB" />&ndash;&gt;-->
+<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+<!--        <template slot-scope="scope">-->
+<!--&lt;!&ndash;          <el-button&ndash;&gt;-->
+<!--&lt;!&ndash;            size="mini"&ndash;&gt;-->
+<!--&lt;!&ndash;            type="text"&ndash;&gt;-->
+<!--&lt;!&ndash;            icon="el-icon-edit"&ndash;&gt;-->
+<!--&lt;!&ndash;            @click="handleUpdate(scope.row)"&ndash;&gt;-->
+<!--&lt;!&ndash;            v-hasPermi="['memberManagement:memberFriend:edit']"&ndash;&gt;-->
+<!--&lt;!&ndash;          >修改</el-button>&ndash;&gt;-->
+
 <!--          <el-button-->
 <!--            size="mini"-->
 <!--            type="text"-->
-<!--            icon="el-icon-edit"-->
-<!--            @click="handleUpdate(scope.row)"-->
-<!--            v-hasPermi="['memberManagement:memberFriend:edit']"-->
-<!--          >修改</el-button>-->
+<!--            icon="el-icon-user"-->
+<!--            @click="handleViewFriend(scope.row)"-->
+<!--          >查看好友空间</el-button>-->
 
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-user"
-            @click="handleViewFriend(scope.row)"
-          >查看好友空间</el-button>
-
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['memberManagement:memberFriend:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-delete"-->
+<!--            @click="handleDelete(scope.row)"-->
+<!--            v-hasPermi="['memberManagement:memberFriend:remove']"-->
+<!--          >删除</el-button>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--    </el-table>-->
 
     <pagination
       v-show="total>0"
@@ -127,33 +195,115 @@
 <!--        -->
 <!--      </div>-->
 <!--    </el-dialog>-->
-    <el-dialog :visible.sync="showFriendSpace" width="600px" title="好友空间">
-      <div v-if="friendSpaceData">
-<!--        <el-dialog :visible.sync="showFriendSpace" width="600px" title="好友空间">-->
-<!--          &lt;!&ndash; 数据结构 &ndash;&gt;-->
-<!--          <pre>{{ friendSpaceData }}</pre>-->
-<!--        </el-dialog>-->
-        <h3>基本资料</h3>
-        <!-- 用实际存在的字段替换 -->
-        <p>学号: {{ friendSpaceData.profile.studentId }}</p>
-        <p>入会时间: {{ parseTime(friendSpaceData.profile.joinTime, '{y}-{m}-{d}') }}</p>
-        <p>协会职务: {{ friendSpaceData.profile.position }}</p>
-        <p>个人介绍: {{ friendSpaceData.profile.introduction }}</p>
-        <p>是否好友: {{ friendSpaceData.isFriend ? '是' : '否' }}</p>
+    <el-dialog :visible.sync="showFriendSpace" width="700px" title="好友空间">
+      <div v-if="friendSpaceData" class="friend-space-container">
+        <!-- 基本资料区域 -->
+        <el-card shadow="hover" class="mb-6">
+          <div slot="header" class="flex justify-between items-center">
+            <span class="text-lg font-bold">基本资料</span>
+          </div>
+          <el-descriptions border column="2" size="small">
+            <el-descriptions-item label="学号">
+              {{ friendSpaceData.profile.studentId }}
+            </el-descriptions-item>
+            <el-descriptions-item label="入会时间">
+              {{ parseTime(friendSpaceData.profile.joinTime, '{y}-{m}-{d}') }}
+            </el-descriptions-item>
+            <el-descriptions-item label="协会职务">
+              {{ friendSpaceData.profile.position }}
+            </el-descriptions-item>
+            <el-descriptions-item label="是否好友">
+              <el-tag :type="friendSpaceData.isFriend ? 'success' : 'info'">
+                {{ friendSpaceData.isFriend ? '是' : '否' }}
+              </el-tag>
+            </el-descriptions-item>
+            <el-descriptions-item label="个人介绍" :span="2">
+              <div class="whitespace-pre-wrap text-sm text-gray-700">
+                {{ friendSpaceData.profile.introduction }}
+              </div>
+            </el-descriptions-item>
+          </el-descriptions>
+        </el-card>
 
-        <h3>动态列表</h3>
-        <el-table :data="visiblePosts" style="width: 100%">
-          <el-table-column prop="title" label="标题" />
-          <el-table-column
-            prop="createTime"
-            label="发布时间"
-            :formatter="row => parseTime(row.createTime, '{y}-{m}-{d} {h}:{i}:{s}')"
-          />
-          <el-table-column prop="visibility" label="可见范围" />
-          <el-table-column prop="content" label="日志内容" />
-        </el-table>
+        <!-- 动态列表区域 -->
+        <template v-if="visiblePosts.length > 0">
+          <el-card shadow="hover" v-for="post in visiblePosts">
+            <template #header>
+              <div class="flex justify-between items-center">
+                <span class="text-lg font-bold">日志列表</span>
+              </div>
+            </template>
+
+            <el-descriptions border column="1" size="small">
+              <el-descriptions-item label="日志数量">
+                {{ visiblePosts.length }}
+              </el-descriptions-item>
+            </el-descriptions>
+
+
+            <el-descriptions border column="2" size="small">
+              <el-descriptions-item label="作者ID">
+                {{ post.authorId }}
+              </el-descriptions-item>
+              <el-descriptions-item label="可见范围">
+                {{ post.visibility }}
+              </el-descriptions-item>
+              <el-descriptions-item label="发布时间">
+                {{post.createTime}}
+              </el-descriptions-item>
+              <el-descriptions-item label="标题">
+                {{ post.title }}
+              </el-descriptions-item>
+
+              <!--            <el-descriptions-item label="调试信息">-->
+              <!--              {{ post}}-->
+              <!--            </el-descriptions-item>-->
+
+            </el-descriptions>
+
+            <el-descriptions border column="1" size="small">
+              <el-descriptions-item label="内容">
+                <div class="Application-content" v-html="post.content || '暂无日志内容'"></div>
+              </el-descriptions-item>
+            </el-descriptions>
+
+            <!--          <el-table-->
+            <!--            :data="visiblePosts"-->
+            <!--            empty-text="日志动态"-->
+            <!--            border-->
+            <!--            stripe-->
+            <!--            size="small"-->
+            <!--            v-loading="postsLoading"-->
+            <!--          >-->
+            <!--            <el-table-column type="index" width="50" label="序号" />-->
+            <!--            <el-table-column prop="title" label="标题" />-->
+            <!--            <el-descriptions-item label="调试">-->
+            <!--              <template slot-scope="scope">-->
+            <!--                <pre>{{ scope.row }}<</pre>-->
+            <!--              </template>-->
+            <!--            </el-descriptions-item>-->
+            <!--            <el-table-column-->
+            <!--              prop="createTime"-->
+            <!--              label="发布时间"-->
+            <!--              :formatter="row => parseTime(row.createTime, '{y}-{m}-{d} {h}:{i}:{s}')"-->
+            <!--              width="160"-->
+            <!--            />-->
+            <!--            <el-table-column prop="visibility" label="可见范围" width="100" />-->
+            <!--            <el-table-column prop="content" label="日志内容" />-->
+            <!--          </el-table>-->
+          </el-card>
+        </template>
+        <template v-else>
+          <el-card shadow="hover">
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-bold">暂无日志</span>
+            </div>
+          </el-card>
+        </template>
+
       </div>
     </el-dialog>
+
 
 
 
@@ -164,6 +314,7 @@
 import { listMemberFriend, getMemberFriend, delMemberFriend, addMemberFriend, updateMemberFriend } from "@/api/memberManagement/memberFriend"
 import { listMyFriends, delMyFriend } from '@/api/memberManagement/memberFriend'
 import { getFriendSpace}  from "@/api/memberManagement/memberFriend";
+import post from "../../system/post/index.vue";
 
 
 export default {
@@ -216,6 +367,9 @@ export default {
     this.getList()
   },
   computed: {
+    post() {
+      return post
+    },
     currentUserId() {
       return this.$store.state.user.id
     },

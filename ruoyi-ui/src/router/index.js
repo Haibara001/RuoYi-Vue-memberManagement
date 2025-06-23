@@ -83,15 +83,15 @@ export const constantRoutes = [
 
 
   {
-    path: '',
+    path: '/association/associationInfo',
     component: Layout,
     redirect: 'index',
     children: [
       {
         path: 'index',
-        component: () => import('@/views/index'),
+        component: () => import('@/views/association/associationInfo/index'),
         name: 'Index',
-        meta: { title: '首页', icon: 'dashboard', affix: true }
+        meta: { title: '协会信息', icon: 'dashboard', affix: true }
       }
     ]
   },
@@ -104,9 +104,9 @@ export const constantRoutes = [
     children: [
       {
         path: 'profile',
-        component: () => import('@/views/system/user/profile/index'),
+        component: () => import('@/views/memberManagement/memberProfile/index'),
         name: 'Profile',
-        meta: { title: '个人中心', icon: 'user' }
+        meta: { title: '会员扩展资料', icon: 'user' }
       }
     ]
   }

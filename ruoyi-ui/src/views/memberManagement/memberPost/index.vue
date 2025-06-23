@@ -27,14 +27,14 @@
 <!--          @keyup.enter.native="handleQuery"-->
 <!--        />-->
 <!--      </el-form-item>-->
-      <el-form-item label="更新时间" prop="updateTime">
-        <el-date-picker clearable
-          v-model="queryParams.updateTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择更新时间">
-        </el-date-picker>
-      </el-form-item>
+<!--      <el-form-item label="更新时间" prop="updateTime">-->
+<!--        <el-date-picker clearable-->
+<!--          v-model="queryParams.updateTime"-->
+<!--          type="date"-->
+<!--          value-format="yyyy-MM-dd"-->
+<!--          placeholder="请选择更新时间">-->
+<!--        </el-date-picker>-->
+<!--      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -54,28 +54,6 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['memberManagement:memberPost:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['memberManagement:memberPost:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
           type="warning"
           plain
           icon="el-icon-download"
@@ -87,45 +65,142 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="filteredPosts" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="日志ID" align="center" prop="postId" />
-      <el-table-column label="日志标题" align="center" prop="title" />
-      <el-table-column label="日志内容" align="center" prop="content" />
-      <el-table-column label="可见范围" align="center" prop="visibility">
-        <template slot-scope="scope">
-          <dict-tag :options="dict.type.visible_range" :value="scope.row.visibility"/>
-        </template>
-      </el-table-column>
-<!--      <el-table-column label="更新人(sys_user.user_id)" align="center" prop="updateBy" />-->
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['memberManagement:memberPost:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['memberManagement:memberPost:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+
+    <el-card class="detail-card" v-for="post in filteredPosts">
+      <!-- 自定义卡片头：左侧显示“日志详情”，右侧放按钮 -->
+      <template #header>
+        <div class="flex justify-between items-center">
+          <span class="text-lg bold-text">日志详情</span>
+          <div class="space-x-2">
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-edit"
+              @click="handleUpdate(post)"
+              v-hasPermi="['memberManagement:memberPost:edit']"
+            >修改</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-delete"
+              @click="handleDelete(post)"
+              v-hasPermi="['memberManagement:memberPost:remove']"
+            >删除</el-button>
+          </div>
+        </div>
+      </template>
+
+      <el-descriptions
+        :column="2"
+        border
+        size="medium"
+      >
+
+
+        <el-descriptions-item label="日志ID">
+          {{ post.postId }}
+        </el-descriptions-item>
+        <el-descriptions-item label="作者ID">
+          {{ post.authorId }}
+        </el-descriptions-item>
+        <el-descriptions-item label="日志标题">
+          {{ post.title }}
+        </el-descriptions-item>
+        <el-descriptions-item label="创建时间">
+          {{ parseTime(post.createTime, '{y}-{m}-{d}') }}
+        </el-descriptions-item>
+        <el-descriptions-item label="更新时间">
+          {{ parseTime(post.updateTime, '{y}-{m}-{d}') }}
+        </el-descriptions-item>
+
+        <el-descriptions-item label="可见范围">
+          {{ post.visibility }}
+        </el-descriptions-item>
+<!--        <el-descriptions-item :span="2">-->
+<!--          <div class="flex justify-end space-x-2">-->
+<!--            <el-button-->
+<!--              size="mini"-->
+<!--              type="text"-->
+<!--              icon="el-icon-edit"-->
+<!--              @click="handleUpdate(post)"-->
+<!--              v-hasPermi="['memberManagement:memberPost:edit']"-->
+<!--            >修改</el-button>-->
+<!--            <el-button-->
+<!--              size="mini"-->
+<!--              type="text"-->
+<!--              icon="el-icon-delete"-->
+<!--              @click="handleDelete(post)"-->
+<!--              v-hasPermi="['memberManagement:memberPost:remove']"-->
+<!--            >删除</el-button>-->
+<!--          </div>-->
+<!--        </el-descriptions-item>-->
+
+      </el-descriptions>
+
+
+      <el-descriptions
+        title="日志内容"
+        :column="1"
+        border
+        size="medium"
+        class="mt-20"
+      >
+        <el-descriptions-item>
+              <div class="introduction-content" v-html="post.content || '暂无个人介绍'"></div>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-card>
+
+
+
+<!--    <el-table v-loading="loading" :data="filteredPosts" @selection-change="handleSelectionChange">-->
+<!--      <el-table-column type="selection" width="55" align="center" />-->
+<!--      <el-table-column label="日志ID" align="center" prop="postId" />-->
+<!--      <el-table-column label="日志标题" align="center" prop="title" />-->
+<!--      <el-table-column label="调试" width="200">-->
+<!--        <template slot-scope="scope">-->
+<!--          <pre>{{ scope.row }}</pre>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="日志内容" align="center" prop="content">-->
+<!--        <template #default="{ row }">-->
+<!--          <div v-html="row.content"></div>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="可见范围" align="center" prop="visibility">-->
+<!--        <template slot-scope="scope">-->
+<!--          <dict-tag :options="dict.type.visible_range" :value="scope.row.visibility"/>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--&lt;!&ndash;      <el-table-column label="更新人(sys_user.user_id)" align="center" prop="updateBy" />&ndash;&gt;-->
+<!--      <el-table-column label="更新时间" align="center" prop="updateTime" width="180">-->
+<!--        <template slot-scope="scope">-->
+<!--          <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+<!--        <template slot-scope="scope">-->
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-edit"-->
+<!--            @click="handleUpdate(scope.row)"-->
+<!--            v-hasPermi="['memberManagement:memberPost:edit']"-->
+<!--          >修改</el-button>-->
+<!--          <el-button-->
+<!--            size="mini"-->
+<!--            type="text"-->
+<!--            icon="el-icon-delete"-->
+<!--            @click="handleDelete(scope.row)"-->
+<!--            v-hasPermi="['memberManagement:memberPost:remove']"-->
+<!--          >删除</el-button>-->
+<!--        </template>-->
+<!--      </el-table-column>-->
+<!--    </el-table>-->
 
     <pagination
       v-show="total>0"
-      :total="total"
+      :total="filteredPosts.length"
       :page.sync="queryParams.pageNum"
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
@@ -149,9 +224,6 @@
             >{{dict.label}}</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="删除标志(0=正常,1=删除)" prop="delFlag">
-          <el-input v-model="form.delFlag" placeholder="请输入删除标志(0=正常,1=删除)" />
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -163,6 +235,7 @@
 
 <script>
 import { listMemberPost, getMemberPost, delMemberPost, addMemberPost, updateMemberPost } from "@/api/memberManagement/memberPost"
+import {parseTime} from "../../../utils/ruoyi";
 
 export default {
   name: "MemberPost",
@@ -234,6 +307,7 @@ export default {
     },
   },
   methods: {
+    parseTime,
     /** 查询会员日志/帖子列表 */
     getList() {
       this.loading = true

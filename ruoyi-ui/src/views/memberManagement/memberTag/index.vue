@@ -67,9 +67,9 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" class="ml-auto" />
     </div>
 
-<!--    <el-button type="primary" @click="showTable = !showTable" class="mb-4">-->
-<!--      {{ showTable ? '返回卡片视图' : '查看我的标签表格' }}-->
-<!--    </el-button>-->
+    <!--    <el-button type="primary" @click="showTable = !showTable" class="mb-4">-->
+    <!--      {{ showTable ? '返回卡片视图' : '查看我的标签表格' }}-->
+    <!--    </el-button>-->
 
     <!-- 卡片视图 -->
     <el-row v-if="!showTable" :gutter="20">
@@ -84,7 +84,7 @@
             <span class="text-lg font-semibold">{{ tag.name }}</span>
           </div>
           <div class="text-sm text-gray-600 mt-2">
-            创建：{{ tag.createBy }}<br/>
+            创建者ID：{{ tag.createBy }}<br/>
             更新：{{ parseTime(tag.updateTime, '{y}-{m}-{d}') }}
           </div>
           <div class="text-right mt-4">
@@ -104,7 +104,7 @@
     <!-- “我的标签” 卡片视图 -->
     <el-row v-else :gutter="20">
       <el-col
-        v-for="item in userTagsWithName"
+        v-for="item in myTags"
         :key="item.tagId"
         :xs="24" :sm="12" :md="12" :lg="6"
       >
@@ -137,88 +137,88 @@
     </el-row>
 
 
-<!--    <el-table-->
-<!--      v-else-->
-<!--      v-loading="loading"-->
-<!--      :data="userTagsWithName"-->
-<!--      @selection-change="handleSelectionChange"-->
-<!--      style="width: 100%; margin-top: 16px;"-->
-<!--    >-->
-<!--      <el-table-column type="selection" width="55" align="center" />-->
-<!--      <el-table-column prop="userId" label="用户 ID" align="center" />-->
-<!--      <el-table-column prop="tagName" label="标签名称" align="center" />-->
-<!--      <el-table-column label="操作" align="center" width="180">-->
-<!--        <template #default="{ row }">-->
-<!--          <el-button-->
-<!--            size="mini"-->
-<!--            type="text"-->
-<!--            icon="el-icon-edit"-->
-<!--            @click="handleUpdate(row)"-->
-<!--            v-hasPermi="['memberManagement:memberUserTag:edit']"-->
-<!--          >修改</el-button>-->
-<!--          <el-button-->
-<!--            size="mini"-->
-<!--            type="text"-->
-<!--            icon="el-icon-delete"-->
-<!--            @click="handleDelete(row)"-->
-<!--            v-hasPermi="['memberManagement:memberUserTag:remove']"-->
-<!--          >删除</el-button>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--    </el-table>-->
+    <!--    <el-table-->
+    <!--      v-else-->
+    <!--      v-loading="loading"-->
+    <!--      :data="userTagsWithName"-->
+    <!--      @selection-change="handleSelectionChange"-->
+    <!--      style="width: 100%; margin-top: 16px;"-->
+    <!--    >-->
+    <!--      <el-table-column type="selection" width="55" align="center" />-->
+    <!--      <el-table-column prop="userId" label="用户 ID" align="center" />-->
+    <!--      <el-table-column prop="tagName" label="标签名称" align="center" />-->
+    <!--      <el-table-column label="操作" align="center" width="180">-->
+    <!--        <template #default="{ row }">-->
+    <!--          <el-button-->
+    <!--            size="mini"-->
+    <!--            type="text"-->
+    <!--            icon="el-icon-edit"-->
+    <!--            @click="handleUpdate(row)"-->
+    <!--            v-hasPermi="['memberManagement:memberUserTag:edit']"-->
+    <!--          >修改</el-button>-->
+    <!--          <el-button-->
+    <!--            size="mini"-->
+    <!--            type="text"-->
+    <!--            icon="el-icon-delete"-->
+    <!--            @click="handleDelete(row)"-->
+    <!--            v-hasPermi="['memberManagement:memberUserTag:remove']"-->
+    <!--          >删除</el-button>-->
+    <!--        </template>-->
+    <!--      </el-table-column>-->
+    <!--    </el-table>-->
 
 
 
 
-<!--    &lt;!&ndash; 标签卡片展示 &ndash;&gt;-->
-<!--    <el-row :gutter="20">-->
-<!--      <el-col :xs="24" :sm="12" :md="12" :lg="6" v-for="tag in memberTagList" :key="tag.tagId">-->
-<!--        <el-card class="tag-card h-full flex flex-col justify-between p-4" shadow="hover">-->
-<!--          <div>-->
-<!--            <i class="fas fa-tag fa-lg text-primary mr-2"></i>-->
-<!--            <span class="text-lg font-semibold">{{ tag.name }}</span>-->
-<!--          </div>-->
-<!--          <div class="text-sm text-gray-600 mt-2">-->
-<!--            创建：{{ tag.createBy }}<br/>-->
-<!--            更新：{{ parseTime(tag.updateTime, '{y}-{m}-{d}') }}-->
-<!--          </div>-->
-<!--          <div class="text-right mt-4">-->
-<!--            <el-button size="medium" type="text" @click="handleUpdate(tag)">编辑</el-button>-->
-<!--            <el-button size="medium" type="text" @click="handleDelete(tag)">删除</el-button>-->
-<!--            &lt;!&ndash; 第二行：添加为我的标签 &ndash;&gt;-->
-<!--            <div class="mt-2">-->
-<!--              <el-button size="medium" type="primary" @click="addToMyTags(tag)">-->
-<!--                添加为我的标签-->
-<!--              </el-button>-->
-<!--            </div>-->
-<!--          </div>-->
-<!--        </el-card>-->
-<!--      </el-col>-->
-<!--    </el-row>-->
+    <!--    &lt;!&ndash; 标签卡片展示 &ndash;&gt;-->
+    <!--    <el-row :gutter="20">-->
+    <!--      <el-col :xs="24" :sm="12" :md="12" :lg="6" v-for="tag in memberTagList" :key="tag.tagId">-->
+    <!--        <el-card class="tag-card h-full flex flex-col justify-between p-4" shadow="hover">-->
+    <!--          <div>-->
+    <!--            <i class="fas fa-tag fa-lg text-primary mr-2"></i>-->
+    <!--            <span class="text-lg font-semibold">{{ tag.name }}</span>-->
+    <!--          </div>-->
+    <!--          <div class="text-sm text-gray-600 mt-2">-->
+    <!--            创建：{{ tag.createBy }}<br/>-->
+    <!--            更新：{{ parseTime(tag.updateTime, '{y}-{m}-{d}') }}-->
+    <!--          </div>-->
+    <!--          <div class="text-right mt-4">-->
+    <!--            <el-button size="medium" type="text" @click="handleUpdate(tag)">编辑</el-button>-->
+    <!--            <el-button size="medium" type="text" @click="handleDelete(tag)">删除</el-button>-->
+    <!--            &lt;!&ndash; 第二行：添加为我的标签 &ndash;&gt;-->
+    <!--            <div class="mt-2">-->
+    <!--              <el-button size="medium" type="primary" @click="addToMyTags(tag)">-->
+    <!--                添加为我的标签-->
+    <!--              </el-button>-->
+    <!--            </div>-->
+    <!--          </div>-->
+    <!--        </el-card>-->
+    <!--      </el-col>-->
+    <!--    </el-row>-->
 
-<!--    <el-table v-loading="loading" :data="memberUserTagList" @selection-change="handleSelectionChange">-->
-<!--      <el-table-column type="selection" width="55" align="center" />-->
-<!--      <el-table-column label="sys_user.user_id" align="center" prop="userId" />-->
-<!--      <el-table-column label="association_tag.tag_id" align="center" prop="tagId" />-->
-<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-button-->
-<!--            size="mini"-->
-<!--            type="text"-->
-<!--            icon="el-icon-edit"-->
-<!--            @click="handleUpdate(scope.row)"-->
-<!--            v-hasPermi="['memberManagement:memberUserTag:edit']"-->
-<!--          >修改</el-button>-->
-<!--          <el-button-->
-<!--            size="mini"-->
-<!--            type="text"-->
-<!--            icon="el-icon-delete"-->
-<!--            @click="handleDelete(scope.row)"-->
-<!--            v-hasPermi="['memberManagement:memberUserTag:remove']"-->
-<!--          >删除</el-button>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-<!--    </el-table>-->
+    <!--    <el-table v-loading="loading" :data="memberUserTagList" @selection-change="handleSelectionChange">-->
+    <!--      <el-table-column type="selection" width="55" align="center" />-->
+    <!--      <el-table-column label="sys_user.user_id" align="center" prop="userId" />-->
+    <!--      <el-table-column label="association_tag.tag_id" align="center" prop="tagId" />-->
+    <!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+    <!--        <template slot-scope="scope">-->
+    <!--          <el-button-->
+    <!--            size="mini"-->
+    <!--            type="text"-->
+    <!--            icon="el-icon-edit"-->
+    <!--            @click="handleUpdate(scope.row)"-->
+    <!--            v-hasPermi="['memberManagement:memberUserTag:edit']"-->
+    <!--          >修改</el-button>-->
+    <!--          <el-button-->
+    <!--            size="mini"-->
+    <!--            type="text"-->
+    <!--            icon="el-icon-delete"-->
+    <!--            @click="handleDelete(scope.row)"-->
+    <!--            v-hasPermi="['memberManagement:memberUserTag:remove']"-->
+    <!--          >删除</el-button>-->
+    <!--        </template>-->
+    <!--      </el-table-column>-->
+    <!--    </el-table>-->
 
     <!-- 分页 -->
     <el-pagination
@@ -288,6 +288,7 @@ export default {
         createBy: null,
         updateBy: null,
         updateTime: null,
+        userId: null,
       },
       // 表单参数
       form: {},
@@ -309,6 +310,13 @@ export default {
     this.getList()
   },
   computed: {
+    myTags() {
+      return this.userTagsWithName.filter(item => item.userId === this.currentUserId)
+    },
+    currentUserId() {
+      // 如果你在 store.state.user.userId 是数字，就返回数字
+      return this.$store.state.user.id
+    },
     userTagsWithName() {
       return this.memberUserTagList.map(item => {
         const tag = this.memberTagList.find(t => t.tagId === item.tagId) || {}
@@ -360,7 +368,9 @@ export default {
       const query = {
         pageNum: this.queryParams.pageNum,
         pageSize: this.queryParams.pageSize,
+        userId: this.currentUserId
       };
+
       this.loading = true
       listMemberUserTag(query).then(response => {
         this.memberUserTagList = response.rows
@@ -371,7 +381,7 @@ export default {
 
     addToMyTags(tag) {
       this.$set(tag, '_adding', true)
-      addMemberUserTag({ userId: this.currentUserId, tagId: tag.tagId })
+      addMemberUserTag({userId: this.currentUserId, tagId: tag.tagId})
         .then(() => {
           this.$message.success(`标签“${tag.name}”已添加`)
           // 如果当前正看“我的标签”视图，刷新列表
@@ -384,7 +394,6 @@ export default {
           this.$set(tag, '_adding', false)
         })
     },
-
 
 
     /** 搜索按钮操作 */
@@ -400,7 +409,7 @@ export default {
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.tagId)
-      this.single = selection.length!==1
+      this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 新增按钮操作 */
@@ -442,12 +451,13 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const tagIds = row.tagId || this.ids
-      this.$modal.confirm('是否确认删除标签定义编号为"' + tagIds + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除标签定义编号为"' + tagIds + '"的数据项？').then(function () {
         return delMemberTag(tagIds)
       }).then(() => {
         this.getList()
         this.$modal.msgSuccess("删除成功")
-      }).catch(() => {})
+      }).catch(() => {
+      })
     },
     /** 导出按钮操作 */
     handleExport() {
@@ -498,7 +508,7 @@ export default {
   position: relative;
   overflow: hidden;
   text-align: center;
-  margin-bottom: 16px;  /* 或 20px，按需调整 */
+  margin-bottom: 16px; /* 或 20px，按需调整 */
 }
 
 .tag-card:hover {

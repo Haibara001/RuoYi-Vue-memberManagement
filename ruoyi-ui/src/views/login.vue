@@ -142,7 +142,7 @@ export default {
             Cookies.remove('rememberMe')
           }
           this.$store.dispatch("Login", this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || "/index" }).catch(()=>{})
+            this.$router.push({ path: this.redirect || "/association/associationInfo/index" }).catch(()=>{})
           }).catch(() => {
             this.loading = false
             if (this.captchaEnabled) {

@@ -24,24 +24,24 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="创建人" prop="createBy">
-        <el-input
-          type="text"
-          v-model="queryParams.createBy"
-          placeholder="请输入创建人"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="更新时间" prop="updateTime">
-        <el-date-picker
-          clearable
-          v-model="queryParams.updateTime"
-          type="date"
-          value-format="yyyy-MM-dd"
-          placeholder="请选择更新时间"
-        />
-      </el-form-item>
+<!--      <el-form-item label="创建人ID" prop="createBy">-->
+<!--        <el-input-->
+<!--          type="text"-->
+<!--          v-model="queryParams.createBy"-->
+<!--          placeholder="请输入创建人ID"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="更新时间" prop="updateTime">-->
+<!--        <el-date-picker-->
+<!--          clearable-->
+<!--          v-model="queryParams.updateTime"-->
+<!--          type="date"-->
+<!--          value-format="yyyy-MM-dd"-->
+<!--          placeholder="请选择更新时间"-->
+<!--        />-->
+<!--      </el-form-item>-->
       <el-form-item>
         <!-- 切换按钮 -->
         <el-button
@@ -51,7 +51,7 @@
           style="background-color: #722ED1; color: white; border-color: #722ED1;"
           @click="toggleMyTagsView"
         >
-          {{ showTable ? '返回卡片视图' : '我的标签' }}
+          {{ showTable ? '全部标签视图' : '我的标签' }}
         </el-button>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button type="warning" icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -59,10 +59,10 @@
     </el-form>
 
     <!-- 操作按钮组 -->
-    <div class="actions flex mb-4">
+    <div class="actions flex mb-4" v-if="isAdminEditing">
       <el-button type="success" icon="el-icon-plus" size="mini" class="mr-2" @click="handleAdd">新增</el-button>
-      <el-button :disabled="single" type="info" icon="el-icon-edit" size="mini" class="mr-2" @click="handleUpdate">修改</el-button>
-      <el-button :disabled="multiple" type="danger" icon="el-icon-delete" size="mini" class="mr-2" @click="handleDelete">删除</el-button>
+<!--      <el-button :disabled="single" type="info" icon="el-icon-edit" size="mini" class="mr-2" @click="handleUpdate">修改</el-button>-->
+<!--      <el-button :disabled="multiple" type="danger" icon="el-icon-delete" size="mini" class="mr-2" @click="handleDelete">删除</el-button>-->
       <el-button type="primary" icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" class="ml-auto" />
     </div>
@@ -88,8 +88,8 @@
             更新：{{ parseTime(tag.updateTime, '{y}-{m}-{d}') }}
           </div>
           <div class="text-right mt-4">
-            <el-button size="medium" type="text" @click="handleUpdate(tag)">编辑</el-button>
-            <el-button size="medium" type="text" @click="handleDelete(tag)">删除</el-button>
+            <el-button v-if="isAdminEditing" size="medium" type="text" @click="handleUpdate(tag)">编辑</el-button>
+            <el-button v-if="isAdminEditing" size="medium" type="text" @click="handleDelete(tag)">删除</el-button>
             <div class="mt-2">
               <el-button size="medium" type="primary" @click="addToMyTags(tag)">
                 添加为我的标签
@@ -120,6 +120,7 @@
           </div>
           <div class="text-right mt-4">
             <el-button
+              v-if="isAdminEditing"
               size="medium"
               type="text"
               @click="handleUpdate(item)"
@@ -222,13 +223,13 @@
 
     <!-- 分页 -->
     <el-pagination
-      v-show="total > 0"
+      v-show="true"
       :total="total"
       :page-size.sync="queryParams.pageSize"
       :current-page.sync="queryParams.pageNum"
       layout="total, prev, pager, next, sizes"
-      @size-change="getList"
-      @current-change="getList"
+      @size-change="handleQueryMyTags"
+      @current-change="handleQueryMyTags"
       class="mt-6"
     />
 
@@ -311,11 +312,15 @@ export default {
   },
   computed: {
     myTags() {
-      return this.userTagsWithName.filter(item => item.userId === this.currentUserId)
+      return this.userTagsWithName.filter(item => item.userId === this.currentUserId).filter(item => item.tagName !== '（已删除）')
     },
     currentUserId() {
       // 如果你在 store.state.user.userId 是数字，就返回数字
       return this.$store.state.user.id
+    },
+    isAdminEditing() {
+      const userRoles = this.$store.getters.roles || [];
+      return userRoles.some(role => ["admin", "adminCommon"].includes(role));
     },
     userTagsWithName() {
       return this.memberUserTagList.map(item => {
@@ -509,6 +514,9 @@ export default {
   overflow: hidden;
   text-align: center;
   margin-bottom: 16px;  /* 或 20px，按需调整 */
+}
+.tag-card .text-right {
+  margin-top: 1.5rem; /* 24px */
 }
 
 .tag-card:hover {

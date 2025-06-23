@@ -30,6 +30,11 @@ public class memberFriendRequest extends BaseEntity
     @Excel(name = "申请状态")
     private String status;
 
+    /** 申请理由 */
+    @Excel(name = "申请理由")
+    private String reason;
+
+
     public void setRequestId(Long requestId) 
     {
         this.requestId = requestId;
@@ -60,16 +65,24 @@ public class memberFriendRequest extends BaseEntity
         return toUser;
     }
 
-    public void setStatus(String status) 
+    public void setStatus(String status)
     {
         this.status = status;
     }
 
-    public String getStatus() 
+    public String getStatus()
     {
         return status;
     }
+    public void setReason(String reason)
+    {
+        this.reason = reason;
+    }
 
+    public String getReason()
+    {
+        return reason;
+    }
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -80,6 +93,7 @@ public class memberFriendRequest extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
-            .toString();
+            .append("reason", getReason())
+                .toString();
     }
 }

@@ -12,10 +12,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
+        <result property="reason"    column="reason"    />
     </resultMap>
 
     <sql id="selectmemberFriendRequestVo">
-        select request_id, from_user, to_user, status, create_time, update_by, update_time from association_friend_request
+        select request_id, from_user, to_user, status, create_time, update_by, update_time, reason from association_friend_request
     </sql>
 
     <select id="selectmemberFriendRequestList" parameterType="memberFriendRequest" resultMap="memberFriendRequestResult">
@@ -24,6 +25,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="fromUser != null "> and from_user = #{fromUser}</if>
             <if test="toUser != null "> and to_user = #{toUser}</if>
             <if test="status != null  and status != ''"> and status = #{status}</if>
+            <if test="reason != null  and reason != ''"> and reason = #{reason}</if>
         </where>
     </select>
     
@@ -41,7 +43,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
-         </trim>
+            <if test="reason != null">reason,</if>
+
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="fromUser != null">#{fromUser},</if>
             <if test="toUser != null">#{toUser},</if>
@@ -49,7 +53,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
-         </trim>
+            <if test="reason != null">#{reason},</if>
+
+        </trim>
     </insert>
 
     <update id="updatememberFriendRequest" parameterType="memberFriendRequest">
@@ -61,6 +67,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="reason != null">reason = #{reason},</if>
+
         </trim>
         where request_id = #{requestId}
     </update>

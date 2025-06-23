@@ -1,18 +1,18 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="发起者sys_user.user_id" prop="fromUser">
+      <el-form-item label="申请者ID" prop="fromUser">
         <el-input
           v-model="queryParams.fromUser"
-          placeholder="请输入发起者sys_user.user_id"
+          placeholder="请输入申请者ID"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="接收者sys_user.user_id" prop="toUser">
+      <el-form-item label="被申请者" prop="toUser">
         <el-input
           v-model="queryParams.toUser"
-          placeholder="请输入接收者sys_user.user_id"
+          placeholder="请输入被申请者ID"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -36,28 +36,6 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['memberManagement:memberFriendRequest:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['memberManagement:memberFriendRequest:remove']"
-        >删除</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
           type="warning"
           plain
           icon="el-icon-download"
@@ -69,80 +47,177 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="memberFriendRequestList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="申请ID" align="center" prop="requestId" />
-      <el-table-column label="发起者sys_user.user_id" align="center" prop="fromUser" />
-      <el-table-column label="接收者sys_user.user_id" align="center" prop="toUser" />
-      <el-table-column label="申请状态" align="center" prop="status" />
+    <el-card class="detail-card" v-for="memberFriendRequest in memberFriendRequestList">
+      <!-- 自定义卡片头：左侧显示“日志详情”，右侧放按钮 -->
+      <template #header>
+        <div class="flex justify-between items-center">
+          <span class="text-lg bold-text">申请详情</span>
+          <div class="space-x-1" v-if="memberFriendRequest.status === '申请中' && memberFriendRequest.toUser !== currentUserId">
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-edit"
+              @click="handleUpdate(memberFriendRequest)"
+              v-hasPermi="['memberManagement:memberFriendRequest:edit']"
+            >修改</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-delete"
+              @click="handleDelete(memberFriendRequest)"
+              v-hasPermi="['memberManagement:memberFriendRequest:remove']"
+            >删除</el-button>
+          </div>
+          <div class="space-x-2">
+            <!-- 只给接收者(toUser) 且状态为“申请中”时显示按钮 -->
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-check"
+              v-if="memberFriendRequest.toUser === currentUserId && memberFriendRequest.status === '申请中'"
+              @click="agreeRequest(memberFriendRequest)"
+            >同意</el-button>
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-close"
+              v-if="memberFriendRequest.toUser === currentUserId && memberFriendRequest.status === '申请中'"
+              @click="rejectRequest(memberFriendRequest)"
+            >不同意</el-button>
 
-      <el-table-column label="调试" width="200">
-        <template slot-scope="scope">
-          toUser:{{scope.row.toUser}}<br>
-          me:{{currentUserId}}<br>
-          status:{{scope.row.status}}
+            <!-- 如果已经同意/拒绝，显示标签 -->
+            <el-tag
+              v-if="memberFriendRequest.status === '已同意'"
+              size="small"
+              type="success"
+            >已同意</el-tag>
+            <el-tag
+              v-else-if="memberFriendRequest.status === '已拒绝'"
+              size="small"
+              type="danger"
+            >已拒绝</el-tag>
+          </div>
+        </div>
+      </template>
 
-          <pre>{{ scope.row }}</pre>
+      <el-descriptions
+        :column="2"
+        border
+        size="medium"
+      >
 
-        </template>
-      </el-table-column>
-
-
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <!-- 只给接收者(toUser) 且状态为“申请中”时显示按钮 -->
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-check"
-            v-if="scope.row.toUser == currentUserId && scope.row.status == '申请中'"
-            @click="agreeRequest(scope.row)"
-          >同意</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-close"
-            v-if="scope.row.toUser == currentUserId && scope.row.status == '申请中'"
-            @click="rejectRequest(scope.row)"
-          >不同意</el-button>
-
-          <!-- 如果已经同意/拒绝，显示标签 -->
-          <el-tag
-            v-if="scope.row.status == '已同意'"
-            size="small"
-            type="success"
-          >已同意</el-tag>
-          <el-tag
-            v-else-if="scope.row.status == '已拒绝'"
-            size="small"
-            type="danger"
-          >已拒绝</el-tag>
-        </template>
+        <el-descriptions-item label="申请ID">
+          {{ memberFriendRequest.requestId }}
+        </el-descriptions-item>
+        <el-descriptions-item label="申请人ID">
+          {{ memberFriendRequest.fromUser }}
+        </el-descriptions-item>
+        <el-descriptions-item label="被申请人ID">
+          {{ memberFriendRequest.toUser }}
+        </el-descriptions-item>
+        <el-descriptions-item label="申请状态">
+          {{ memberFriendRequest.status }}
+        </el-descriptions-item>
+        <el-descriptions-item label="创建时间">
+          {{ parseTime(memberFriendRequest.createTime, '{y}-{m}-{d}')}}
+        </el-descriptions-item>
+        <el-descriptions-item label="更新时间">
+          {{ parseTime(memberFriendRequest.updateTime, '{y}-{m}-{d}') }}
+        </el-descriptions-item>
 
 
-<!--        <template #default="{ row }">-->
+      </el-descriptions>
+
+
+      <el-descriptions
+        title="申请理由"
+        :column="1"
+        border
+        size="medium"
+        class="mt-20"
+      >
+        <el-descriptions-item>
+          <div class="Application-content" v-html="memberFriendRequest.reason || '暂无申请理由'"></div>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-card>
+
+
+
+<!--    <el-table v-loading="loading" :data="memberFriendRequestList" @selection-change="handleSelectionChange">-->
+<!--      <el-table-column type="selection" width="55" align="center" />-->
+<!--      <el-table-column label="申请ID" align="center" prop="requestId" />-->
+<!--      <el-table-column label="发起者sys_user.user_id" align="center" prop="fromUser" />-->
+<!--      <el-table-column label="接收者sys_user.user_id" align="center" prop="toUser" />-->
+<!--      <el-table-column label="申请状态" align="center" prop="status" />-->
+
+<!--      <el-table-column label="调试" width="200">-->
+<!--        <template slot-scope="scope">-->
+<!--          toUser:{{scope.row.toUser}}<br>-->
+<!--          me:{{currentUserId}}<br>-->
+<!--          status:{{scope.row.status}}-->
+
+<!--          <pre>{{ scope.row }}</pre>-->
+
+<!--        </template>-->
+<!--      </el-table-column>-->
+
+
+<!--      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">-->
+<!--        <template slot-scope="scope">-->
+<!--          &lt;!&ndash; 只给接收者(toUser) 且状态为“申请中”时显示按钮 &ndash;&gt;-->
 <!--          <el-button-->
 <!--            size="mini"-->
 <!--            type="text"-->
-<!--            icon="el-icon-edit"-->
-<!--            v-if="row.fromUser === currentUserId"-->
-
-<!--            @click="handleUpdate(scope.row)"-->
-
-<!--            v-hasPermi="['memberManagement:memberFriendRequest:edit']"-->
+<!--            icon="el-icon-check"-->
+<!--            v-if="scope.row.toUser == currentUserId && scope.row.status == '申请中'"-->
+<!--            @click="agreeRequest(scope.row)"-->
 <!--          >同意</el-button>-->
 <!--          <el-button-->
 <!--            size="mini"-->
 <!--            type="text"-->
-<!--            icon="el-icon-delete"-->
-<!--            v-if="row.fromUser === currentUserId"-->
+<!--            icon="el-icon-close"-->
+<!--            v-if="scope.row.toUser == currentUserId && scope.row.status == '申请中'"-->
+<!--            @click="rejectRequest(scope.row)"-->
+<!--          >不同意</el-button>-->
 
-<!--            @click="handleDelete(scope.row)"-->
-<!--            v-hasPermi="['memberManagement:memberFriendRequest:remove']"-->
-<!--          >拒绝</el-button>-->
+<!--          &lt;!&ndash; 如果已经同意/拒绝，显示标签 &ndash;&gt;-->
+<!--          <el-tag-->
+<!--            v-if="scope.row.status == '已同意'"-->
+<!--            size="small"-->
+<!--            type="success"-->
+<!--          >已同意</el-tag>-->
+<!--          <el-tag-->
+<!--            v-else-if="scope.row.status == '已拒绝'"-->
+<!--            size="small"-->
+<!--            type="danger"-->
+<!--          >已拒绝</el-tag>-->
 <!--        </template>-->
-      </el-table-column>
-    </el-table>
+
+
+<!--&lt;!&ndash;        <template #default="{ row }">&ndash;&gt;-->
+<!--&lt;!&ndash;          <el-button&ndash;&gt;-->
+<!--&lt;!&ndash;            size="mini"&ndash;&gt;-->
+<!--&lt;!&ndash;            type="text"&ndash;&gt;-->
+<!--&lt;!&ndash;            icon="el-icon-edit"&ndash;&gt;-->
+<!--&lt;!&ndash;            v-if="row.fromUser === currentUserId"&ndash;&gt;-->
+
+<!--&lt;!&ndash;            @click="handleUpdate(scope.row)"&ndash;&gt;-->
+
+<!--&lt;!&ndash;            v-hasPermi="['memberManagement:memberFriendRequest:edit']"&ndash;&gt;-->
+<!--&lt;!&ndash;          >同意</el-button>&ndash;&gt;-->
+<!--&lt;!&ndash;          <el-button&ndash;&gt;-->
+<!--&lt;!&ndash;            size="mini"&ndash;&gt;-->
+<!--&lt;!&ndash;            type="text"&ndash;&gt;-->
+<!--&lt;!&ndash;            icon="el-icon-delete"&ndash;&gt;-->
+<!--&lt;!&ndash;            v-if="row.fromUser === currentUserId"&ndash;&gt;-->
+
+<!--&lt;!&ndash;            @click="handleDelete(scope.row)"&ndash;&gt;-->
+<!--&lt;!&ndash;            v-hasPermi="['memberManagement:memberFriendRequest:remove']"&ndash;&gt;-->
+<!--&lt;!&ndash;          >拒绝</el-button>&ndash;&gt;-->
+<!--&lt;!&ndash;        </template>&ndash;&gt;-->
+<!--      </el-table-column>-->
+<!--    </el-table>-->
 
     <pagination
       v-show="total>0"
@@ -155,11 +230,14 @@
     <!-- 添加或修改会员好友申请对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="发起者sys_user.user_id" prop="fromUser">
-          <el-input v-model="form.fromUser" placeholder="请输入发起者sys_user.user_id" />
+        <el-form-item label="申请者" prop="fromUser">
+          <el-input v-model="form.fromUser" placeholder="请输入申请者ID" />
         </el-form-item>
-        <el-form-item label="接收者sys_user.user_id" prop="toUser">
-          <el-input v-model="form.toUser" placeholder="请输入接收者sys_user.user_id" />
+        <el-form-item label="被申请者" prop="toUser">
+          <el-input v-model="form.toUser" placeholder="请输入被申请者ID" />
+        </el-form-item>
+        <el-form-item label="申请理由" prop="reason">
+          <el-input v-model="form.reason" type="textarea" placeholder="请输入申请理由" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -203,6 +281,7 @@ export default {
         fromUser: null,
         toUser: null,
         status: null,
+        reason: null,
       },
       // 表单参数
       form: {},
